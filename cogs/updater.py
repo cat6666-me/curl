@@ -3,6 +3,7 @@ from discord.ext import commands
 import aiohttp
 import asyncio
 import os
+import sys
 import hashlib
 from datetime import datetime
 
@@ -204,11 +205,17 @@ class Updater(commands.Cog):
             with open('./version.txt', 'w', encoding='utf-8') as f:
                 f.write(f"versions = {remote_version}")
             print(f"\n   🎊 更新完成！版本已升級至 {remote_version}")
-            print("   ⚠️  建議重啟機器人以應用更新")
+            print("   🔄 正在自動重啟機器人以應用更新...")
+            print("─" * 62)
+            
+            # 等待一小段時間讓訊息顯示
+            await asyncio.sleep(2)
+            
+            # 自動重啟機器人 (支援 Linux/Windows)
+            os.execv(sys.executable, [sys.executable] + sys.argv)
         except Exception as e:
             print(f"   ❌ 寫入版本文件失敗: {e}")
-        
-        print("─" * 62)
+            print("─" * 62)
     
     @commands.Cog.listener()
     async def on_ready(self):

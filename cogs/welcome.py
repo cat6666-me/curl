@@ -1,29 +1,44 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
+import os
 
 class Welcome(commands.Cog):
     """歡迎與離開系統"""
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
+        self.data_dir = "data"
         self.settings = {}
+        os.makedirs(self.data_dir, exist_ok=True)
+    
+    def get_data_file(self, guild_id: str):
+        """獲取伺服器數據檔案路徑"""
+        guild_dir = os.path.join(self.data_dir, guild_id)
+        os.makedirs(guild_dir, exist_ok=True)
+        return os.path.join(guild_dir, "welcome.json")
     
     def load_settings(self, guild_id: str):
         """載入伺服器設定"""
-        return self.storage.load_guild_data(guild_id, "welcome", default={
+        data_file = self.get_data_file(guild_id)
+        if os.path.exists(data_file):
+            with open(data_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {
             "welcome_enabled": False,
             "welcome_channel": None,
             "welcome_message": "歡迎 {user} 加入 {server}！",
             "leave_enabled": False,
             "leave_channel": None,
             "leave_message": "{user} 離開了 {server}..."
-        })
+        }
     
     def save_settings(self, guild_id: str):
         """保存伺服器設定"""
-        self.storage.save_guild_data(guild_id, "welcome", self.settings.get(guild_id, {}))
+        data_file = self.get_data_file(guild_id)
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(self.settings.get(guild_id, {}), f, indent=2, ensure_ascii=False)
     
     def get_settings(self, guild_id: str):
         """獲取伺服器設定（每次都重新載入以確保同步網頁修改）"""

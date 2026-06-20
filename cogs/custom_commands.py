@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
 import os
 from typing import Optional
 
@@ -9,15 +10,27 @@ class CustomCommands(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
+        self.data_folder = './data'
+    
+    def get_commands_file(self, guild_id: int) -> str:
+        """獲取伺服器的自定義命令檔案路徑"""
+        folder = os.path.join(self.data_folder, str(guild_id))
+        os.makedirs(folder, exist_ok=True)
+        return os.path.join(folder, 'custom_commands.json')
     
     def load_commands(self, guild_id: int) -> dict:
         """載入自定義命令"""
-        return self.storage.load_guild_data(guild_id, 'custom_commands', default={})
+        file_path = self.get_commands_file(guild_id)
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
     
     def save_commands(self, guild_id: int, commands: dict):
         """儲存自定義命令"""
-        self.storage.save_guild_data(guild_id, 'custom_commands', commands)
+        file_path = self.get_commands_file(guild_id)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(commands, f, ensure_ascii=False, indent=2)
     
     custom_group = app_commands.Group(name="自定義", description="自定義命令管理")
     

@@ -47,7 +47,7 @@ class HelpSelect(ui.Select):
                 value="utility"
             ),
             discord.SelectOption(
-                label="等級系統（暫時停用）",
+                label="等級系統",
                 description="查看等級系統指令",
                 emoji="⭐",
                 value="leveling"

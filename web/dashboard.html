@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 机器人控制台</title>
+    <title>Discord 機器人控制台</title>
     <style>
         * {
             margin: 0;
@@ -340,7 +340,7 @@
             }
         }
 
-        /* 移动端响应式样式 */
+        /* 移動端響應式樣式 */
         @media (max-width: 768px) {
             .hamburger {
                 display: flex;
@@ -420,7 +420,7 @@
 </head>
 <body>
     <div class="navbar">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="切换菜单">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="切換菜單">
             <span></span>
             <span></span>
             <span></span>
@@ -430,11 +430,11 @@
             <span style="margin-left: 1rem; color: #888; font-size: 0.9rem;">/ {GUILD_NAME}</span>
         </div>
         <div class="navbar-user">
-            <a href="/my-tickets" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">🎫 我的工单</a>
-            <a href="/select-server" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">← 返回服务器列表</a>
+            <a href="/my-tickets" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">🎫 我的客服單</a>
+            <a href="/select-server" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">← 返回伺服器列表</a>
             <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
             <span class="user-name">{USERNAME}</span>
-            <a href="/logout" class="logout-btn">退出登录</a>
+            <a href="/logout" class="logout-btn">登出</a>
         </div>
     </div>
 
@@ -442,27 +442,27 @@
 
     <div class="main-layout">
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-section">数据总览</div>
+            <div class="sidebar-section">數據總覽</div>
             <div class="sidebar-item active" onclick="showSection('dashboard')">
-                仪表板
+                儀表板
             </div>
             <div class="sidebar-item" onclick="showSection('levels')">
-                等级系统
+                等級系統
             </div>
             <div class="sidebar-item" onclick="showSection('daily')">
-                签到系统
+                簽到系統
             </div>
             <div class="sidebar-item" onclick="showSection('birthdays')">
-                生日系统
+                生日系統
             </div>
             <div class="sidebar-item" onclick="showSection('games')">
-                游戏系统
+                遊戲系統
             </div>
             <div class="sidebar-item" onclick="showSection('statistics')">
-                活跃度分析
+                活躍度分析
             </div>
             
-            <div class="sidebar-section">系统管理</div>
+            <div class="sidebar-section">系統管理</div>
             <div class="sidebar-item" onclick="showSection('warnings')">
                 警告管理
             </div>
@@ -470,27 +470,18 @@
                 成就管理
             </div>
             <div class="sidebar-item" onclick="showSection('tickets')">
-                工单管理
+                客服單管理
             </div>
             <div class="sidebar-item" onclick="showSection('custom-commands')">
-                自定义命令
+                自定義命令
             </div>
             
-            <div class="sidebar-section">系统设置</div>
+            <div class="sidebar-section">系統設定</div>
             <div class="sidebar-item" onclick="showSection('welcome')">
-                欢迎系统
+                歡迎系統
             </div>
             <div class="sidebar-item" onclick="showSection('temp-voice')">
-                临时语音
-            </div>
-            <div class="sidebar-item" onclick="showSection('auto-reply')">
-                自动回复
-            </div>
-            <div class="sidebar-item" onclick="showSection('security')">
-                安全系统
-            </div>
-            <div class="sidebar-item" onclick="showSection('scheduled-messages')">
-                定时消息
+                臨時語音
             </div>
         </div>
 
@@ -498,389 +489,109 @@
             <div id="section-dashboard" class="content-section">
                 <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">成员数量</div>
+                <div class="stat-label">成員數量</div>
                 <div class="stat-value" id="member-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">频道数量</div>
+                <div class="stat-label">頻道數量</div>
                 <div class="stat-value" id="channel-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">身份组数量</div>
+                <div class="stat-label">身分組數量</div>
                 <div class="stat-value" id="role-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">文字频道</div>
+                <div class="stat-label">文字頻道</div>
                 <div class="stat-value" id="text-channels">-</div>
             </div>
         </div>
             </div>
 
-            <!-- 等级系统 -->
+            <!-- 等級系統 -->
             <div id="section-levels" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">等级系统数据</h2>
-                    <div id="levels-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">等級系統數據</h2>
+                    <div id="levels-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
-            <!-- 签到系统 -->
+            <!-- 簽到系統 -->
             <div id="section-daily" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">签到系统数据</h2>
-                    <div id="daily-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">簽到系統數據</h2>
+                    <div id="daily-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
-            <!-- 生日系统 -->
+            <!-- 生日系統 -->
             <div id="section-birthdays" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">生日系统数据</h2>
-                    <div id="birthday-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">生日系統數據</h2>
+                    <div id="birthday-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 遊戲系統 -->
             <div id="section-games" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">游戏系统数据</h2>
-                    <div id="game-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">遊戲系統數據</h2>
+                    <div id="game-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
-            <!-- 活跃度分析 -->
+            <!-- 活躍度分析 -->
             <div id="section-statistics" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">服务器活跃度</h2>
-                    <div id="statistics-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">伺服器活躍度</h2>
+                    <div id="statistics-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 警告管理 -->
             <div id="section-warnings" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">警告系统管理</h2>
-                    <div id="warnings-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">警告系統管理</h2>
+                    <div id="warnings-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 成就管理 -->
             <div id="section-achievements" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">成就系统管理</h2>
-                    <div id="achievements-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">成就系統管理</h2>
+                    <div id="achievements-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 自定義命令 -->
             <div id="section-custom-commands" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">自定义命令管理</h2>
-                    <div id="custom-commands-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">自定義命令管理</h2>
+                    <div id="custom-commands-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 歡迎系統 -->
             <div id="section-welcome" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">欢迎系统设置</h2>
-                    <div id="welcome-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">歡迎系統設定</h2>
+                    <div id="welcome-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 臨時語音 -->
             <div id="section-temp-voice" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">临时语音频道设置</h2>
-                    <div id="temp-voice-data" style="color: #888;">加载中...</div>
+                    <h2 class="section-title">臨時語音頻道設定</h2>
+                    <div id="temp-voice-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
 
             <!-- 客服單管理 -->
             <div id="section-tickets" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">工单系统管理</h2>
-                    <div id="tickets-data" style="color: #888;">加载中...</div>
-                </div>
-            </div>
-
-            <!-- 自動回覆系統 -->
-            <div id="section-auto-reply" class="content-section" style="display: none;">
-                <div class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">自动回复管理</h2>
-                        <div style="display: flex; gap: 1rem; align-items: center;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
-                                <span id="auto-reply-system-status">系統狀態</span>
-                                <input type="checkbox" id="auto-reply-system-toggle" onchange="toggleAutoReplySystem(this.checked)"
-                                       style="width: 44px; height: 22px;">
-                            </label>
-                            <button class="action-btn" onclick="openAddAutoReplyModal()" 
-                                    style="background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
-                                ➕ 添加规则
-                            </button>
-                        </div>
-                    </div>
-                    <div id="auto-reply-data" style="color: #888;">加载中...</div>
-                </div>
-            </div>
-
-            <!-- 安全系統 -->
-            <div id="section-security" class="content-section" style="display: none;">
-                <div class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">安全系统管理</h2>
-                        <label class="switch">
-                            <input type="checkbox" id="securityToggle" onchange="toggleSecuritySystem()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-
-                    <!-- 配置區域 -->
-                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem;">
-                        <h3 style="margin: 0 0 1rem 0; color: #fff; font-size: 1.1rem;">系统配置</h3>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">处罚类型</label>
-                                <select id="actionType" onchange="updateSecurityConfig()" 
-                                        style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                                    <option value="timeout">超时（Timeout）</option>
-                                    <option value="delete">僅刪除消息</option>
-                                    <option value="warn">警告</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">超时时长（秒）</label>
-                                <input type="number" id="timeoutDuration" min="1" max="2419200" value="60" onchange="updateSecurityConfig()"
-                                       style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                            </div>
-                            
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">匹配模式</label>
-                                <select id="matchType" onchange="updateSecurityConfig()"
-                                        style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                                    <option value="contains">包含匹配</option>
-                                    <option value="exact">完全匹配</option>
-                                    <option value="regex">正则匹配</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">
-                                    区分大小写
-                                </label>
-                                <label class="switch">
-                                    <input type="checkbox" id="caseSensitive" onchange="updateSecurityConfig()">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 違禁詞管理 -->
-                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="margin: 0; color: #fff; font-size: 1.1rem;">违禁词列表</h3>
-                            <button onclick="showAddBannedWordDialog()" 
-                                    style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                                ➕ 添加违禁词
-                            </button>
-                        </div>
-                        
-                        <div id="bannedWordsList" style="margin-top: 1rem;">
-                            <!-- 违禁词列表将在这里动态生成 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 定時消息 -->
-            <div id="section-scheduled-messages" class="content-section" style="display: none;">
-                <div class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">定时消息管理</h2>
-                        <button onclick="showAddScheduledMessageDialog()" 
-                                style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                            ➕ 新增定時消息
-                        </button>
-                    </div>
-
-                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
-                        <div id="scheduled-messages-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                            <!-- 定时消息列表将在这里动态生成 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加定時消息的模態框 -->
-    <div id="scheduledMessageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: #2b2b2b; border-radius: 4px; max-width: 600px; width: 90%; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #fff;">新增定时消息</h3>
-                <button onclick="closeScheduledMessageDialog()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 時間輸入 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">发送时间 (UTC+8)</label>
-                    <input type="text" id="scheduleTime" placeholder="格式: YYYY/MM/DD HH:MM，例如: 2026/02/18 15:30" 
-                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                    <small style="color: #888;">时区为 UTC+8（台湾/香港/中国时间）</small>
-                </div>
-                
-                <!-- 頻道選擇 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">发送频道</label>
-                    <select id="scheduleChannel" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                        <!-- 频道列表将动态加载 -->
-                    </select>
-                </div>
-                
-                <!-- 消息內容 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">消息内容</label>
-                    <textarea id="scheduleMessage" rows="5" placeholder="输入要发送的消息内容" 
-                              style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
-                </div>
-                
-                <!-- 按鈕 -->
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button onclick="saveScheduledMessage()" 
-                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        保存
-                    </button>
-                    <button onclick="closeScheduledMessageDialog()" 
-                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        取消
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加/編輯自動回覆規則的模態框 -->
-    <div id="autoReplyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: #2b2b2b; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 id="modalTitle" style="margin: 0; color: #fff;">添加自动回复规则</h3>
-                <button onclick="closeAutoReplyModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
-            </div>
-            
-            <input type="hidden" id="editRuleId" value="">
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 触发词 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">触发词</label>
-                    <input type="text" id="triggerInput" placeholder="输入触发关键词" 
-                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                </div>
-                
-                <!-- 回复内容 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回复内容</label>
-                    <textarea id="replyInput" rows="3" placeholder="输入回复内容&#10;&#10;可用变量: {user} {username} {server} {channel}" 
-                              style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
-                </div>
-                
-                <!-- 匹配类型 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">匹配类型</label>
-                    <select id="matchTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                        <option value="contains">包含关键词</option>
-                        <option value="exact">完全匹配</option>
-                        <option value="starts_with">以...开头</option>
-                        <option value="ends_with">以...结尾</option>
-                        <option value="regex">正则表达式</option>
-                    </select>
-                </div>
-                
-                <!-- 回复类型 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回复类型</label>
-                    <select id="replyTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;" onchange="toggleReactionInput(this.value)">
-                        <option value="message">普通消息</option>
-                        <option value="reply">回复消息</option>
-                        <option value="dm">私信用户</option>
-                        <option value="react">添加表情</option>
-                    </select>
-                </div>
-                
-                <!-- 表情 Emoji（仅在回复类型为 react 时显示） -->
-                <div id="reactionInputDiv" style="display: none;">
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">反應 Emoji</label>
-                    <input type="text" id="reactionInput" placeholder="输入 Emoji，例如：👍" value="👍"
-                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                </div>
-                
-                <!-- 选项 -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
-                        <input type="checkbox" id="caseSensitiveCheck">
-                        区分大小写
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
-                        <input type="checkbox" id="mentionUserCheck">
-                        提及用户
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
-                        <input type="checkbox" id="triggerOnceCheck">
-                        只触发一次
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
-                        <input type="checkbox" id="enabledCheck" checked>
-                        启用规则
-                    </label>
-                </div>
-                
-                <!-- 按鈕 -->
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button onclick="saveAutoReply()" 
-                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        保存
-                    </button>
-                    <button onclick="closeAutoReplyModal()" 
-                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        取消
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加違禁詞的模態框 -->
-    <div id="bannedWordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: #2b2b2b; border-radius: 8px; max-width: 500px; width: 90%; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #fff;">添加违禁词</h3>
-                <button onclick="closeBannedWordModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 违禁词输入 -->
-                <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">违禁词</label>
-                    <input type="text" id="bannedWordInput" placeholder="输入要禁止的词语" 
-                           onkeypress="if(event.key==='Enter') submitBannedWord()"
-                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                </div>
-                
-                <!-- 按鈕 -->
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button onclick="submitBannedWord()" 
-                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                        確定
-                    </button>
-                    <button onclick="closeBannedWordModal()" 
-                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        取消
-                    </button>
+                    <h2 class="section-title">客服單系統管理</h2>
+                    <div id="tickets-data" style="color: #888;">載入中...</div>
                 </div>
             </div>
         </div>
@@ -888,18 +599,6 @@
 
     <script>
         const GUILD_ID = '{GUILD_ID}';
-        
-        // HTML 轉義函數（防止 XSS 攻擊）
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
         
         // 漢堡菜單切換函數
         function toggleSidebar() {
@@ -930,11 +629,6 @@
             const targetSection = document.getElementById('section-' + sectionName);
             if (targetSection) {
                 targetSection.style.display = 'block';
-            }
-            
-            // 載入對應section的數據
-            if (sectionName === 'scheduled-messages') {
-                loadScheduledMessages();
             }
             
             // 添加active狀態到點擊的項目
@@ -1047,7 +741,7 @@
             }
         }
 
-        // 加载欢迎系统设置
+        // 載入歡迎系統設定
         async function loadWelcome() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/welcome');
@@ -1058,14 +752,14 @@
                     const channels = await channelsResponse.json();
                     const container = document.getElementById('welcome-data');
                     
-                    // 如果文件不存在，使用默认值
+                    // 如果文件不存在，使用默認值
                     const settings = data.exists ? data.data : {
                         welcome_enabled: false,
                         leave_enabled: false,
                         welcome_channel: null,
                         leave_channel: null,
-                        welcome_message: '欢迎 {user} 加入 {server}！',
-                        leave_message: '{username} 离开了服务器'
+                        welcome_message: '歡迎 {user} 加入 {server}！',
+                        leave_message: '{username} 離開了伺服器'
                     };
                     
                     const welcomeChecked = settings.welcome_enabled ? 'checked' : '';
@@ -1073,10 +767,10 @@
                     const welcomeStatusColor = settings.welcome_enabled ? '#2563eb' : '#6b7280';
                     const leaveStatusColor = settings.leave_enabled ? '#2563eb' : '#6b7280';
                     
-                    // 生成频道选项
+                    // 生成頻道選項
                     const textChannels = channels.text_channels || [];
-                    let welcomeChannelOptions = '<option value="">未设定</option>';
-                    let leaveChannelOptions = '<option value="">未设定</option>';
+                    let welcomeChannelOptions = '<option value="">未設定</option>';
+                    let leaveChannelOptions = '<option value="">未設定</option>';
                     
                     textChannels.forEach(channel => {
                         const welcomeSelected = settings.welcome_channel && settings.welcome_channel == channel.id ? 'selected' : '';
@@ -1086,12 +780,12 @@
                     });
                     
                     container.innerHTML = `
-                        ${!data.exists ? '<div style="background: #2b2b2b; padding: 0.75rem; margin-bottom: 1rem; border-left: 3px solid #888; color: #888; font-size: 0.9rem;">使用默认配置（修改后将自动创建配置文件）</div>' : ''}
+                        ${!data.exists ? '<div style="background: #2b2b2b; padding: 0.75rem; margin-bottom: 1rem; border-left: 3px solid #888; color: #888; font-size: 0.9rem;">使用默認配置（修改後將自動創建配置文件）</div>' : ''}
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                            <!-- 欢迎系统 -->
+                            <!-- 歡迎系統 -->
                             <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${welcomeStatusColor};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">欢迎系统</div>
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">歡迎系統</div>
                                     <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
                                         <input type="checkbox" id="welcome-toggle" ${welcomeChecked} 
                                                onchange="toggleWelcome('welcome', this.checked)"
@@ -1105,33 +799,33 @@
                                     </label>
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <span style="color: ${welcomeStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.welcome_enabled ? '✓ 已开启' : '○ 已关闭'}</span>
+                                    <span style="color: ${welcomeStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.welcome_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">欢迎频道</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎頻道</label>
                                     <select id="welcome-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                         ${welcomeChannelOptions}
                                     </select>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">欢迎消息</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎訊息</label>
                                     <textarea id="welcome-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.welcome_message}</textarea>
                                     <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
-                                        可用变量：{user} {username} {server}
+                                        可用變數：{user} {username} {server}
                                     </div>
                                 </div>
                                 
                                 <button onclick="saveWelcomeSettings('welcome')" class="btn btn-primary" style="width: 100%;">
-                                    保存设置
+                                    保存設定
                                 </button>
                             </div>
                             
-                            <!-- 离开系统 -->
+                            <!-- 離開系統 -->
                             <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${leaveStatusColor};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">离开系统</div>
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">離開系統</div>
                                     <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
                                         <input type="checkbox" id="leave-toggle" ${leaveChecked} 
                                                onchange="toggleWelcome('leave', this.checked)"
@@ -1145,37 +839,37 @@
                                     </label>
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <span style="color: ${leaveStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.leave_enabled ? '✓ 已开启' : '○ 已关闭'}</span>
+                                    <span style="color: ${leaveStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.leave_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">离开频道</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開頻道</label>
                                     <select id="leave-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                         ${leaveChannelOptions}
                                     </select>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">离开消息</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開訊息</label>
                                     <textarea id="leave-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.leave_message}</textarea>
                                     <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
-                                        可用变量：{user} {username} {server}
+                                        可用變數：{user} {username} {server}
                                     </div>
                                 </div>
                                 
                                 <button onclick="saveWelcomeSettings('leave')" class="btn btn-primary" style="width: 100%;">
-                                    保存设置
+                                    保存設定
                                 </button>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('welcome-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('welcome-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
-        // 切换欢迎系统开关
+        // 切換歡迎系統開關
         async function toggleWelcome(type, enabled) {
             try {
                 const response = await fetch('/api/welcome/' + GUILD_ID + '/toggle', {
@@ -1192,12 +886,12 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success) {
-                        // 重新加载欢迎系统设置以更新UI
+                        // 重新載入歡迎系統設定以更新UI
                         loadWelcome();
                         
-                        // 显示成功提示
-                        const statusText = enabled ? '已开启' : '已关闭';
-                        const typeText = type === 'welcome' ? '欢迎系统' : '离开系统';
+                        // 顯示成功提示
+                        const statusText = enabled ? '已開啟' : '已關閉';
+                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
                         showNotification(`${typeText}${statusText}`, 'success');
                     }
                 } else {
@@ -1207,13 +901,13 @@
                 }
             } catch (error) {
                 console.error('切換失敗:', error);
-                showNotification('发生错误', 'error');
-                // 恢复开关状态
+                showNotification('發生錯誤', 'error');
+                // 恢復開關狀態
                 loadWelcome();
             }
         }
 
-        // 保存欢迎系统设置
+        // 保存歡迎系統設定
         async function saveWelcomeSettings(type) {
             try {
                 let channel, message;
@@ -1228,7 +922,7 @@
                 
                 // 驗證
                 if (!message.trim()) {
-                    showNotification('消息内容不能为空', 'error');
+                    showNotification('訊息內容不能為空', 'error');
                     return;
                 }
                 
@@ -1253,8 +947,8 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success) {
-                        const typeText = type === 'welcome' ? '欢迎系统' : '离开系统';
-                        showNotification(`${typeText}设置已保存`, 'success');
+                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
+                        showNotification(`${typeText}設定已保存`, 'success');
                         loadWelcome();
                     }
                 } else {
@@ -1293,7 +987,7 @@
             }, 3000);
         }
 
-        // 加载生日数据
+        // 載入生日數據
         async function loadBirthdays() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/birthdays');
@@ -1302,7 +996,7 @@
                     const container = document.getElementById('birthday-data');
                     
                     if (!data.exists || Object.keys(data.data).length === 0) {
-                        container.innerHTML = '<p style="color: #888;">暂无生日记录</p>';
+                        container.innerHTML = '<p style="color: #888;">暫無生日記錄</p>';
                         return;
                     }
                     
@@ -1313,18 +1007,18 @@
                     container.innerHTML = `
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">已登记生日</div>
+                                <div style="color: #888; font-size: 0.9rem;">已登記生日</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${birthdays}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">本月寿星</div>
+                                <div style="color: #888; font-size: 0.9rem;">本月壽星</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${thisMonth}</div>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('birthday-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('birthday-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
@@ -1388,7 +1082,7 @@
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalGames.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">平均胜率</div>
+                                <div style="color: #888; font-size: 0.9rem;">平均勝率</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${winRate.toFixed(1)}%</div>
                             </div>
                         </div>
@@ -1399,11 +1093,11 @@
                     `;
                 }
             } catch (error) {
-                document.getElementById('game-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('game-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
-        // 加载服务器统计
+        // 載入伺服器統計
         async function loadStatistics() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/statistics');
@@ -1412,7 +1106,7 @@
                     const container = document.getElementById('statistics-data');
                     
                     if (!data.exists) {
-                        container.innerHTML = '<p style="color: #888;">暂无活跃度数据</p>';
+                        container.innerHTML = '<p style="color: #888;">暫無活躍度數據</p>';
                         return;
                     }
                     
@@ -1424,7 +1118,7 @@
                     const todayMessages = stats.daily_messages?.[today] || 0;
                     
                     // 找出最熱門頻道
-                    let topChannel = '暂无数据';
+                    let topChannel = '暫無數據';
                     let topChannelCount = 0;
                     if (stats.channel_stats) {
                         Object.entries(stats.channel_stats).forEach(([id, info]) => {
@@ -1436,7 +1130,7 @@
                     }
                     
                     // 找出最活躍時段
-                    let peakHour = '暂无数据';
+                    let peakHour = '暫無數據';
                     let peakCount = 0;
                     if (stats.hourly_activity) {
                         Object.entries(stats.hourly_activity).forEach(([hour, count]) => {
@@ -1457,34 +1151,34 @@
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalMessages.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">今日消息</div>
+                                <div style="color: #888; font-size: 0.9rem;">今日訊息</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${todayMessages.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">活跃用户</div>
+                                <div style="color: #888; font-size: 0.9rem;">活躍用戶</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${activeUsers}</div>
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div style="background: #1a1a1a; padding: 1rem;">
-                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最热门频道</div>
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最熱門頻道</div>
                                 <div style="color: #2563eb; font-weight: 600;">${topChannel}</div>
-                                <div style="color: #888; font-size: 0.85rem;">${topChannelCount.toLocaleString()} 条消息</div>
+                                <div style="color: #888; font-size: 0.85rem;">${topChannelCount.toLocaleString()} 條訊息</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem;">
-                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最活跃时段</div>
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最活躍時段</div>
                                 <div style="color: #2563eb; font-weight: 600;">${peakHour}</div>
-                                <div style="color: #888; font-size: 0.85rem;">${peakCount.toLocaleString()} 条消息</div>
+                                <div style="color: #888; font-size: 0.85rem;">${peakCount.toLocaleString()} 條訊息</div>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('statistics-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('statistics-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
-        // 加载自定义命令
+        // 載入自定義命令
         async function loadCustomCommands() {
             try {
                 const response = await fetch('/api/custom-commands/' + GUILD_ID);
@@ -1493,7 +1187,7 @@
                 
                 if (!data.commands || Object.keys(data.commands).length === 0) {
                     container.innerHTML = `
-                        <p style="color: #888;">尚未设置任何自定义命令</p>
+                        <p style="color: #888;">尚未設定任何自定義命令</p>
                         <button onclick="showAddCommandModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">添加命令</button>
                     `;
                 } else {
@@ -1509,10 +1203,10 @@
                                     <div style="flex: 1;">
                                         <div style="color: #2563eb; font-weight: 600; font-size: 1.1rem;">!${name}</div>
                                         <div style="color: #ccc; margin-top: 0.5rem;">${cmd.response}</div>
-                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">使用次数：${cmd.uses || 0}</div>
+                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">使用次數：${cmd.uses || 0}</div>
                                     </div>
                                     <div style="display: flex; gap: 0.5rem;">
-                                        <button onclick="editCommand('${name}', '${cmd.response.replace(/'/g, "&apos;")}')" style="padding: 0.25rem 0.75rem; background: #333; color: #2563eb; border: 1px solid #2563eb; cursor: pointer;">编辑</button>
+                                        <button onclick="editCommand('${name}', '${cmd.response.replace(/'/g, "&apos;")}')" style="padding: 0.25rem 0.75rem; background: #333; color: #2563eb; border: 1px solid #2563eb; cursor: pointer;">編輯</button>
                                         <button onclick="deleteCommand('${name}')" style="padding: 0.25rem 0.75rem; background: #333; color: #dc2626; border: 1px solid #dc2626; cursor: pointer;">刪除</button>
                                     </div>
                                 </div>
@@ -1524,7 +1218,7 @@
                     container.innerHTML = html;
                 }
             } catch (error) {
-                document.getElementById('custom-commands-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('custom-commands-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
@@ -1546,9 +1240,9 @@
             
             modal.innerHTML = `
                 <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
-                    <h3 style="margin-top: 0; color: #fff;">添加自定义命令</h3>
+                    <h3 style="margin-top: 0; color: #fff;">添加自定義命令</h3>
                     <div style="margin-bottom: 1rem;">
-                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">命令名称（不包含!）</label>
+                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">命令名稱（不包含!）</label>
                         <input id="cmd-name" type="text" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">
                     </div>
                     <div style="margin-bottom: 1rem;">
@@ -1571,7 +1265,7 @@
             const response = document.getElementById('cmd-response').value.trim();
             
             if (!name || !response) {
-                showNotification('请填写完整信息', 'error');
+                showNotification('請填寫完整資訊', 'error');
                 return;
             }
             
@@ -1589,14 +1283,14 @@
                     loadCustomCommands();
                     document.querySelector('div[style*="fixed"]').remove();
                 } else {
-                    showNotification(data.error || '添加失败', 'error');
+                    showNotification(data.error || '添加失敗', 'error');
                 }
             } catch (error) {
-                showNotification('添加失败', 'error');
+                showNotification('添加失敗', 'error');
             }
         }
 
-        // 编辑命令
+        // 編輯命令
         function editCommand(name, currentResponse) {
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -1614,14 +1308,14 @@
             
             modal.innerHTML = `
                 <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
-                    <h3 style="margin-top: 0; color: #fff;">编辑命令：!${name}</h3>
+                    <h3 style="margin-top: 0; color: #fff;">編輯命令：!${name}</h3>
                     <div style="margin-bottom: 1rem;">
                         <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">回覆內容</label>
                         <textarea id="edit-response" rows="4" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">${currentResponse.replace(/&apos;/g, "'")}</textarea>
                     </div>
                     <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
                         <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 0.5rem 1rem; background: #333; color: #ccc; border: 1px solid #444; cursor: pointer;">取消</button>
-                        <button onclick="saveEditCommand('${name}')" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">储存</button>
+                        <button onclick="saveEditCommand('${name}')" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">儲存</button>
                     </div>
                 </div>
             `;
@@ -1629,12 +1323,12 @@
             document.body.appendChild(modal);
         }
 
-        // 储存编辑
+        // 儲存編輯
         async function saveEditCommand(name) {
             const response = document.getElementById('edit-response').value.trim();
             
             if (!response) {
-                showNotification('请填写回复内容', 'error');
+                showNotification('請填寫回覆內容', 'error');
                 return;
             }
             
@@ -1683,7 +1377,7 @@
             }
         }
 
-        // 加载临时语音配置
+        // 載入臨時語音配置
         async function loadTempVoice() {
             try {
                 const [configRes, channelsRes] = await Promise.all([
@@ -1711,7 +1405,7 @@
                         
                         <div style="display: grid; gap: 1rem;">
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">触发频道</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">觸發頻道</label>
                                 <select id="trigger-channel" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                     <option value="">選擇語音頻道...</option>
                                     ${channelsData.voice_channels.map(ch => 
@@ -1721,7 +1415,7 @@
                             </div>
                             
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">频道分类（可选）</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道分類（可選）</label>
                                 <select id="category" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                     <option value="">無分類</option>
                                     ${channelsData.categories.map(cat => 
@@ -1731,9 +1425,9 @@
                             </div>
                             
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">频道名称格式</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道名稱格式</label>
                                 <input id="channel-format" type="text" value="${config.channel_name_format}" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
-                                <div style="color: #555; font-size: 0.85rem; margin-top: 0.25rem;">使用 {username} 代表用户名</div>
+                                <div style="color: #555; font-size: 0.85rem; margin-top: 0.25rem;">使用 {username} 代表用戶名</div>
                             </div>
                         </div>
                         
@@ -1751,7 +1445,7 @@
                 
                 container.innerHTML = html;
             } catch (error) {
-                document.getElementById('temp-voice-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
+                document.getElementById('temp-voice-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
             }
         }
 
@@ -1767,7 +1461,7 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    showNotification(enabled ? '临时语音系统已启用' : '临时语音系统已停用', 'success');
+                    showNotification(enabled ? '臨時語音系統已啟用' : '臨時語音系統已停用', 'success');
                     loadTempVoice();
                 } else {
                     showNotification(data.error || '更新失敗', 'error');
@@ -2341,390 +2035,6 @@
             }
         }
 
-        // ===== 自動回覆系統管理 =====
-        async function loadAutoReply() {
-            try {
-                const response = await fetch('/api/auto-reply/' + GUILD_ID);
-                
-                if (!response.ok) {
-                    console.error('API 請求失敗:', response.status, response.statusText);
-                    document.getElementById('auto-reply-data').innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
-                            <p>❌ 載入失敗 (${response.status})</p>
-                            <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">請檢查網絡連接或重新整理頁面</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    console.error('API 返回錯誤:', data.error);
-                    document.getElementById('auto-reply-data').innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
-                            <p>❌ 載入失敗</p>
-                            <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">${data.error}</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                // 更新系統狀態開關
-                const systemToggle = document.getElementById('auto-reply-system-toggle');
-                const systemStatus = document.getElementById('auto-reply-system-status');
-                systemToggle.checked = data.enabled !== false;
-                systemStatus.textContent = data.enabled !== false ? '🟢 已啟用' : '🔴 已停用';
-                systemStatus.style.color = data.enabled !== false ? '#10b981' : '#888';
-                
-                const rules = data.rules || [];
-                
-                if (rules.length === 0) {
-                    document.getElementById('auto-reply-data').innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #888;">
-                            <p>📝 目前沒有任何自動回覆規則</p>
-                            <p style="margin-top: 0.5rem; font-size: 0.9rem;">點擊上方「添加規則」按鈕開始創建</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = `
-                    <div style="margin-bottom: 1rem; color: #888;">
-                        共有 ${rules.length} 條規則
-                    </div>
-                    <div style="display: grid; gap: 1rem;">
-                `;
-                
-                for (const rule of rules) {
-                    const statusColor = rule.enabled ? '#10b981' : '#888';
-                    const statusIcon = rule.enabled ? '🟢' : '🔴';
-                    const matchTypeLabels = {
-                        'exact': '完全匹配',
-                        'contains': '包含關鍵詞',
-                        'starts_with': '以...開頭',
-                        'ends_with': '以...結尾',
-                        'regex': '正則表達式'
-                    };
-                    const replyTypeLabels = {
-                        'message': '普通消息',
-                        'reply': '回覆消息',
-                        'dm': '私訊用戶',
-                        'react': '添加反應'
-                    };
-                    
-                    html += `
-                        <div style="background: #1a1a1a; padding: 1.25rem; border-left: 4px solid ${statusColor}; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; color: #fff; font-size: 1.1rem; margin-bottom: 0.5rem;">
-                                        ${statusIcon} 規則 #${rule.id}
-                                        ${rule.trigger_once ? '<span style="background: #2563eb; color: white; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 3px; margin-left: 0.5rem;">僅觸發一次</span>' : ''}
-                                    </div>
-                                    <div style="color: #888; font-size: 0.85rem;">
-                                        創建於: ${new Date(rule.created_at).toLocaleString('zh-TW')}
-                                        ${rule.last_triggered ? ' | 最後觸發: ' + new Date(rule.last_triggered).toLocaleString('zh-TW') : ''}
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button onclick="editAutoReplyRule(${rule.id})" 
-                                            style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
-                                        編輯
-                                    </button>
-                                    <button onclick="toggleAutoReplyRule(${rule.id}, ${!rule.enabled})" 
-                                            style="padding: 0.5rem 1rem; background: ${rule.enabled ? '#f59e0b' : '#10b981'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
-                                        ${rule.enabled ? '停用' : '啟用'}
-                                    </button>
-                                    <button onclick="deleteAutoReplyRule(${rule.id})" 
-                                            style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
-                                        刪除
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
-                                <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px;">
-                                    <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">觸發詞</div>
-                                    <div style="color: #fff; font-family: monospace;">${rule.trigger}</div>
-                                </div>
-                                <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px;">
-                                    <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">觸發次數</div>
-                                    <div style="color: #2563eb; font-weight: 600; font-size: 1.2rem;">${rule.triggered_count || 0} 次</div>
-                                </div>
-                            </div>
-                            
-                            <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
-                                <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">回覆內容</div>
-                                <div style="color: #fff;">${rule.reply_type === 'react' ? '反應: ' + rule.reaction : rule.reply}</div>
-                            </div>
-                            
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem;">
-                                <span style="background: #2b2b2b; color: #888; padding: 0.25rem 0.75rem; border-radius: 3px;">
-                                    匹配: ${matchTypeLabels[rule.match_type] || rule.match_type}
-                                </span>
-                                <span style="background: #2b2b2b; color: #888; padding: 0.25rem 0.75rem; border-radius: 3px;">
-                                    回覆: ${replyTypeLabels[rule.reply_type] || rule.reply_type}
-                                </span>
-                                ${rule.case_sensitive ? '<span style="background: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 3px;">區分大小寫</span>' : ''}
-                                ${rule.mention_user ? '<span style="background: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 3px;">提及用戶</span>' : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                html += '</div>';
-                document.getElementById('auto-reply-data').innerHTML = html;
-            } catch (error) {
-                console.error('載入自動回覆數據失敗:', error);
-                document.getElementById('auto-reply-data').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #dc2626;">
-                        <p>❌ 載入失敗</p>
-                        <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">${error.message || '未知錯誤'}</p>
-                        <button onclick="loadAutoReply()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            🔄 重新載入
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        // 開關自動回覆系統
-        async function toggleAutoReplySystem(enabled) {
-            try {
-                const res = await fetch(`/api/auto-reply/${GUILD_ID}/toggle`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ enabled })
-                });
-                
-                if (!res.ok) {
-                    console.error('API 請求失敗:', res.status, res.statusText);
-                    showNotification(`操作失敗 (${res.status})`, 'error');
-                    return;
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification(enabled ? '✅ 已啟用自動回覆系統' : '⏸️ 已停用自動回覆系統', 'success');
-                    loadAutoReply();
-                } else {
-                    console.error('API 返回錯誤:', data.error);
-                    showNotification(data.error || '操作失敗', 'error');
-                }
-            } catch (error) {
-                console.error('切換系統失敗:', error);
-                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
-            }
-        }
-
-        // 開關特定規則
-        async function toggleAutoReplyRule(ruleId, enabled) {
-            try {
-                const res = await fetch(`/api/auto-reply/${GUILD_ID}/${ruleId}/toggle`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ enabled })
-                });
-                
-                if (!res.ok) {
-                    console.error('API 請求失敗:', res.status, res.statusText);
-                    showNotification(`操作失敗 (${res.status})`, 'error');
-                    return;
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification(enabled ? '✅ 已啟用規則' : '⏸️ 已停用規則', 'success');
-                    loadAutoReply();
-                } else {
-                    console.error('API 返回錯誤:', data.error);
-                    showNotification(data.error || '操作失敗', 'error');
-                }
-            } catch (error) {
-                console.error('切換規則失敗:', error);
-                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
-            }
-        }
-
-        // 打開添加規則模態框
-        function openAddAutoReplyModal() {
-            document.getElementById('modalTitle').textContent = '添加自動回覆規則';
-            document.getElementById('editRuleId').value = '';
-            document.getElementById('triggerInput').value = '';
-            document.getElementById('replyInput').value = '';
-            document.getElementById('matchTypeSelect').value = 'contains';
-            document.getElementById('replyTypeSelect').value = 'message';
-            document.getElementById('reactionInput').value = '👍';
-            document.getElementById('caseSensitiveCheck').checked = false;
-            document.getElementById('mentionUserCheck').checked = false;
-            document.getElementById('triggerOnceCheck').checked = false;
-            document.getElementById('enabledCheck').checked = true;
-            document.getElementById('reactionInputDiv').style.display = 'none';
-            document.getElementById('autoReplyModal').style.display = 'flex';
-        }
-
-        // 編輯規則
-        async function editAutoReplyRule(ruleId) {
-            try {
-                const response = await fetch('/api/auto-reply/' + GUILD_ID);
-                
-                if (!response.ok) {
-                    console.error('API 請求失敗:', response.status, response.statusText);
-                    showNotification(`載入規則失敗 (${response.status})`, 'error');
-                    return;
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    console.error('API 返回錯誤:', data.error);
-                    showNotification(data.error || '載入規則失敗', 'error');
-                    return;
-                }
-                
-                const rule = data.rules ? data.rules.find(r => r.id === ruleId) : null;
-                
-                if (!rule) {
-                    showNotification('找不到該規則', 'error');
-                    return;
-                }
-                
-                document.getElementById('modalTitle').textContent = '編輯自動回覆規則 #' + ruleId;
-                document.getElementById('editRuleId').value = ruleId;
-                document.getElementById('triggerInput').value = rule.trigger || '';
-                document.getElementById('replyInput').value = rule.reply || '';
-                document.getElementById('matchTypeSelect').value = rule.match_type || 'contains';
-                document.getElementById('replyTypeSelect').value = rule.reply_type || 'message';
-                document.getElementById('reactionInput').value = rule.reaction || '👍';
-                document.getElementById('caseSensitiveCheck').checked = rule.case_sensitive || false;
-                document.getElementById('mentionUserCheck').checked = rule.mention_user || false;
-                document.getElementById('triggerOnceCheck').checked = rule.trigger_once || false;
-                document.getElementById('enabledCheck').checked = rule.enabled !== false;
-                document.getElementById('reactionInputDiv').style.display = rule.reply_type === 'react' ? 'block' : 'none';
-                document.getElementById('autoReplyModal').style.display = 'flex';
-            } catch (error) {
-                console.error('載入規則失敗:', error);
-                showNotification(`載入規則失敗: ${error.message || '未知錯誤'}`, 'error');
-            }
-        }
-
-        // 關閉模態框
-        function closeAutoReplyModal() {
-            document.getElementById('autoReplyModal').style.display = 'none';
-        }
-
-        // 切換反應輸入框顯示
-        function toggleReactionInput(replyType) {
-            document.getElementById('reactionInputDiv').style.display = replyType === 'react' ? 'block' : 'none';
-        }
-
-        // 保存規則
-        async function saveAutoReply() {
-            const ruleId = document.getElementById('editRuleId').value;
-            const trigger = document.getElementById('triggerInput').value.trim();
-            const reply = document.getElementById('replyInput').value.trim();
-            const matchType = document.getElementById('matchTypeSelect').value;
-            const replyType = document.getElementById('replyTypeSelect').value;
-            const reaction = document.getElementById('reactionInput').value.trim();
-            const caseSensitive = document.getElementById('caseSensitiveCheck').checked;
-            const mentionUser = document.getElementById('mentionUserCheck').checked;
-            const triggerOnce = document.getElementById('triggerOnceCheck').checked;
-            const enabled = document.getElementById('enabledCheck').checked;
-            
-            if (!trigger) {
-                showNotification('請輸入觸發詞', 'error');
-                return;
-            }
-            
-            if (replyType !== 'react' && !reply) {
-                showNotification('請輸入回覆內容', 'error');
-                return;
-            }
-            
-            const ruleData = {
-                trigger,
-                reply: replyType === 'react' ? '' : reply,
-                match_type: matchType,
-                reply_type: replyType,
-                reaction: replyType === 'react' ? reaction : '👍',
-                case_sensitive: caseSensitive,
-                mention_user: mentionUser,
-                trigger_once: triggerOnce,
-                enabled,
-                channel_ids: [],
-                role_ids: []
-            };
-            
-            try {
-                let url, method;
-                if (ruleId) {  // 編輯
-                    url = `/api/auto-reply/${GUILD_ID}/${ruleId}`;
-                    method = 'PUT';
-                } else {  // 新增
-                    url = `/api/auto-reply/${GUILD_ID}`;
-                    method = 'POST';
-                }
-                
-                const res = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(ruleData)
-                });
-                
-                if (!res.ok) {
-                    console.error('API 請求失敗:', res.status, res.statusText);
-                    showNotification(`操作失敗 (${res.status})`, 'error');
-                    return;
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification(ruleId ? '✅ 規則已更新' : '✅ 規則已添加', 'success');
-                    closeAutoReplyModal();
-                    loadAutoReply();
-                } else {
-                    console.error('API 返回錯誤:', data.error);
-                    showNotification(data.error || '操作失敗', 'error');
-                }
-            } catch (error) {
-                console.error('保存失敗:', error);
-                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
-            }
-        }
-
-        // 刪除規則
-        async function deleteAutoReplyRule(ruleId) {
-            if (!confirm('確定要刪除此規則嗎？此操作無法撤銷！')) return;
-            
-            try {
-                const res = await fetch(`/api/auto-reply/${GUILD_ID}/${ruleId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (!res.ok) {
-                    console.error('API 請求失敗:', res.status, res.statusText);
-                    showNotification(`刪除失敗 (${res.status})`, 'error');
-                    return;
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification('✅ 規則已刪除', 'success');
-                    loadAutoReply();
-                } else {
-                    console.error('API 返回錯誤:', data.error);
-                    showNotification(data.error || '刪除失敗', 'error');
-                }
-            } catch (error) {
-                console.error('刪除失敗:', error);
-                showNotification(`刪除失敗: ${error.message || '未知錯誤'}`, 'error');
-            }
-        }
-
         // 頁面載入時執行
         loadStats();
         loadLevels();
@@ -2738,8 +2048,6 @@
         loadWarnings();
         loadAchievements();
         loadTickets();
-        loadAutoReply();
-        loadSecurity();
         
         // 每30秒更新一次數據
         setInterval(() => {
@@ -2755,355 +2063,7 @@
             loadWarnings();
             loadAchievements();
             loadTickets();
-            loadAutoReply();
-            loadSecurity();
         }, 30000);
-
-        // ===== 安全系統管理 =====
-        
-        async function loadSecurity() {
-            try {
-                const res = await fetch(`/api/security/${GUILD_ID}`);
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-                }
-                
-                const data = await res.json();
-                
-                // 更新開關狀態
-                document.getElementById('securityToggle').checked = data.enabled || false;
-                
-                // 更新配置
-                document.getElementById('actionType').value = data.action_type || 'timeout';
-                document.getElementById('timeoutDuration').value = data.timeout_duration || 60;
-                document.getElementById('matchType').value = data.match_type || 'contains';
-                document.getElementById('caseSensitive').checked = data.case_sensitive || false;
-                
-                // 顯示違禁詞列表
-                const bannedWordsList = document.getElementById('bannedWordsList');
-                if (!data.banned_words || data.banned_words.length === 0) {
-                    bannedWordsList.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #888;">
-                            <p>📝 目前沒有設定違禁詞</p>
-                        </div>
-                    `;
-                } else {
-                    bannedWordsList.innerHTML = data.banned_words.map((word, index) => `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #2a2a2a; border-radius: 4px; margin-bottom: 0.5rem;">
-                            <span style="color: #fff; font-family: monospace;">${escapeHtml(word)}</span>
-                            <button onclick="deleteBannedWord('${escapeHtml(word)}')" 
-                                    style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                🗑️ 刪除
-                            </button>
-                        </div>
-                    `).join('');
-                }
-                
-            } catch (error) {
-                console.error('載入安全系統數據失敗:', error);
-                const bannedWordsList = document.getElementById('bannedWordsList');
-                if (bannedWordsList) {
-                    bannedWordsList.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
-                            <p>❌ 載入失敗: ${error.message}</p>
-                            <button onclick="loadSecurity()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                重試
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-        }
-        
-        // 開關安全系統
-        async function toggleSecuritySystem() {
-            const enabled = document.getElementById('securityToggle').checked;
-            
-            try {
-                const res = await fetch(`/api/security/${GUILD_ID}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ enabled })
-                });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification(enabled ? '✅ 已啟用安全系統' : '⏸️ 已停用安全系統', 'success');
-                } else {
-                    throw new Error(data.error || '操作失敗');
-                }
-            } catch (error) {
-                console.error('切換安全系統失敗:', error);
-                showNotification('操作失敗: ' + error.message, 'error');
-                // 恢復開關狀態
-                document.getElementById('securityToggle').checked = !enabled;
-            }
-        }
-        
-        // 更新安全配置
-        async function updateSecurityConfig() {
-            try {
-                const config = {
-                    action_type: document.getElementById('actionType').value,
-                    timeout_duration: parseInt(document.getElementById('timeoutDuration').value),
-                    match_type: document.getElementById('matchType').value,
-                    case_sensitive: document.getElementById('caseSensitive').checked
-                };
-                
-                const res = await fetch(`/api/security/${GUILD_ID}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(config)
-                });
-                
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification('✅ 配置已更新', 'success');
-                } else {
-                    throw new Error(data.error || '操作失敗');
-                }
-            } catch (error) {
-                console.error('更新配置失敗:', error);
-                showNotification('操作失敗: ' + error.message, 'error');
-            }
-        }
-        
-        // 顯示添加違禁詞對話框
-        function showAddBannedWordDialog() {
-            document.getElementById('bannedWordInput').value = '';
-            document.getElementById('bannedWordModal').style.display = 'flex';
-            document.getElementById('bannedWordInput').focus();
-        }
-        
-        // 關閉違禁詞模態框
-        function closeBannedWordModal() {
-            document.getElementById('bannedWordModal').style.display = 'none';
-        }
-        
-        // 提交違禁詞
-        function submitBannedWord() {
-            const word = document.getElementById('bannedWordInput').value.trim();
-            if (word) {
-                addBannedWord(word);
-                closeBannedWordModal();
-            } else {
-                showNotification('⚠️ 請輸入違禁詞', 'error');
-            }
-        }
-        
-        // 添加違禁詞
-        async function addBannedWord(word) {
-            try {
-                const res = await fetch(`/api/security/${GUILD_ID}/banned-words`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ word })
-                });
-                
-                if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || `HTTP ${res.status}`);
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification('✅ 違禁詞已添加', 'success');
-                    loadSecurity();
-                } else {
-                    throw new Error(data.error || '操作失敗');
-                }
-            } catch (error) {
-                console.error('添加違禁詞失敗:', error);
-                showNotification('操作失敗: ' + error.message, 'error');
-            }
-        }
-        
-        // 刪除違禁詞
-        async function deleteBannedWord(word) {
-            if (!confirm(`確定要刪除違禁詞「${word}」嗎？`)) {
-                return;
-            }
-            
-            try {
-                const res = await fetch(`/api/security/${GUILD_ID}/banned-words`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ word })
-                });
-                
-                if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || `HTTP ${res.status}`);
-                }
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    showNotification('✅ 違禁詞已刪除', 'success');
-                    loadSecurity();
-                } else {
-                    throw new Error(data.error || '操作失敗');
-                }
-            } catch (error) {
-                console.error('刪除違禁詞失敗:', error);
-                showNotification('操作失敗: ' + error.message, 'error');
-            }
-        }
-        
-        // ===== 定時消息管理 =====
-        
-        // 載入定時消息列表
-        async function loadScheduledMessages() {
-            try {
-                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}`);
-                if (!response.ok) throw new Error('載入失敗');
-                
-                const data = await response.json();
-                const container = document.getElementById('scheduled-messages-list');
-                
-                if (!data.messages || data.messages.length === 0) {
-                    container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">暫無定時消息</p>';
-                    return;
-                }
-                
-                container.innerHTML = data.messages.map(msg => `
-                    <div style="background: #2a2a2a; padding: 1rem; border-radius: 4px; border-left: 3px solid #2563eb;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #fff; margin-bottom: 0.5rem;">
-                                    ⏰ ${escapeHtml(msg.time)}
-                                </div>
-                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                    📢 頻道 ID: ${escapeHtml(msg.channel_id)}
-                                </div>
-                                <div style="color: #ccc; font-size: 0.9rem; background: #1a1a1a; padding: 0.75rem; border-radius: 4px; word-break: break-word;">
-                                    ${escapeHtml(msg.message)}
-                                </div>
-                            </div>
-                            <button onclick="deleteScheduledMessage('${msg.id}')" 
-                                    style="padding: 0.5rem 0.75rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 1rem;">
-                                刪除
-                            </button>
-                        </div>
-                        <div style="color: #666; font-size: 0.85rem;">
-                            由 ${escapeHtml(msg.created_by)} 建立於 ${new Date(msg.created_at).toLocaleString('zh-TW')}
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('載入定時消息失敗:', error);
-                document.getElementById('scheduled-messages-list').innerHTML = 
-                    '<p style="color: #dc2626; text-align: center; padding: 2rem;">載入失敗</p>';
-            }
-        }
-        
-        // 顯示添加定時消息對話框
-        async function showAddScheduledMessageDialog() {
-            // 載入頻道列表
-            try {
-                const response = await fetch(`/api/channels/${GUILD_ID}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const select = document.getElementById('scheduleChannel');
-                    select.innerHTML = data.channels
-                        .filter(ch => ch.type === 'text')
-                        .map(ch => `<option value="${ch.id}">${escapeHtml(ch.name)}</option>`)
-                        .join('');
-                }
-            } catch (error) {
-                console.error('載入頻道列表失敗:', error);
-            }
-            
-            // 清空表單
-            document.getElementById('scheduleTime').value = '';
-            document.getElementById('scheduleMessage').value = '';
-            
-            // 顯示對話框
-            document.getElementById('scheduledMessageModal').style.display = 'flex';
-        }
-        
-        // 關閉定時消息對話框
-        function closeScheduledMessageDialog() {
-            document.getElementById('scheduledMessageModal').style.display = 'none';
-        }
-        
-        // 保存定時消息
-        async function saveScheduledMessage() {
-            const time = document.getElementById('scheduleTime').value.trim();
-            const message = document.getElementById('scheduleMessage').value.trim();
-            const channelId = document.getElementById('scheduleChannel').value;
-            
-            if (!time || !message) {
-                showNotification('⚠️ 請填寫所有必填欄位', 'error');
-                return;
-            }
-            
-            // 驗證時間格式
-            const timeRegex = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}$/;
-            if (!timeRegex.test(time)) {
-                showNotification('⚠️ 時間格式錯誤，請使用 YYYY/MM/DD HH:MM 格式', 'error');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        time: time,
-                        message: message,
-                        channel_id: channelId
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || '保存失敗');
-                }
-                
-                showNotification('✅ 定時消息已設定', 'success');
-                closeScheduledMessageDialog();
-                loadScheduledMessages();
-            } catch (error) {
-                console.error('保存定時消息失敗:', error);
-                showNotification('❌ ' + error.message, 'error');
-            }
-        }
-        
-        // 刪除定時消息
-        async function deleteScheduledMessage(messageId) {
-            if (!confirm('確定要刪除這個定時消息嗎？')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}/${messageId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (!response.ok) throw new Error('刪除失敗');
-                
-                showNotification('✅ 定時消息已刪除', 'success');
-                loadScheduledMessages();
-            } catch (error) {
-                console.error('刪除定時消息失敗:', error);
-                showNotification('❌ 刪除失敗', 'error');
-            }
-        }
     </script>
 </body>
 </html>
-

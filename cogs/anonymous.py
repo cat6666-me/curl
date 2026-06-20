@@ -1,72 +1,53 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
+import os
 from datetime import datetime
-from dotenv import load_dotenv
 
 class PostInfoButton(discord.ui.Button):
     """貼文資訊按鈕（僅管理員可見）"""
     
-    def __init__(self, cog):
+    def __init__(self, author_id: int, author_name: str, timestamp: str):
         super().__init__(
             label="貼文資訊",
             style=discord.ButtonStyle.secondary,
-            emoji="ℹ️",
-            custom_id="anonymous_post_info"
+            emoji="ℹ️"
         )
-        self.cog = cog
+        self.author_id = author_id
+        self.author_name = author_name
+        self.timestamp = timestamp
     
     async def callback(self, interaction: discord.Interaction):
-        # 檢查是否為開發者
-        load_dotenv()
-        dev_ids = os.getenv('DEV_ID', '')
-        dev_id_list = [int(id.strip()) for id in dev_ids.split(',') if id.strip()]
-        
-        if interaction.user.id not in dev_id_list:
+        # 檢查是否為管理員
+        if not interaction.user.guild_permissions.manage_messages:
             await interaction.response.send_message(
-                "❌ 只有機器人開發者才能查看貼文資訊",
+                "❌ 只有伺服器管理員才能查看貼文資訊",
                 ephemeral=True
             )
             return
-        
-        # 從數據中查找貼文資訊
-        guild_id = str(interaction.guild.id)
-        message_id = str(interaction.message.id)
-        data = self.cog.load_data(guild_id)
-        
-        post_data = data.get('posts', {}).get(message_id)
-        if not post_data:
-            await interaction.response.send_message(
-                "❌ 找不到此貼文的資訊",
-                ephemeral=True
-            )
-            return
-        
-        author_id = int(post_data['author_id'])
-        author_name = post_data['author_name']
-        timestamp = post_data['timestamp']
         
         embed = discord.Embed(
             title="📋 匿名貼文資訊",
             color=discord.Color.blue(),
-            timestamp=datetime.fromisoformat(timestamp)
+            timestamp=datetime.fromisoformat(self.timestamp)
         )
         
         embed.add_field(
             name="原始發送者",
-            value=f"<@{author_id}> ({author_name})",
+            value=f"<@{self.author_id}> ({self.author_name})",
             inline=False
         )
         
         embed.add_field(
             name="用戶 ID",
-            value=f"`{author_id}`",
+            value=f"`{self.author_id}`",
             inline=True
         )
         
         embed.add_field(
             name="發送時間",
-            value=f"<t:{int(datetime.fromisoformat(timestamp).timestamp())}:F>",
+            value=f"<t:{int(datetime.fromisoformat(self.timestamp).timestamp())}:F>",
             inline=True
         )
         
@@ -75,28 +56,38 @@ class PostInfoButton(discord.ui.Button):
 class AnonymousView(discord.ui.View):
     """匿名貼文視圖"""
     
-    def __init__(self, cog):
+    def __init__(self, author_id: int, author_name: str, timestamp: str):
         super().__init__(timeout=None)
-        self.add_item(PostInfoButton(cog))
+        self.add_item(PostInfoButton(author_id, author_name, timestamp))
 
 class Anonymous(commands.Cog):
     """匿名發言系統"""
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
         self.anonymous_posts = {}  # {guild_id: {message_id: {author_id, author_name, timestamp}}}
+    
+    def get_data_path(self, guild_id):
+        """獲取數據文件路徑"""
+        return f'./data/{guild_id}/anonymous.json'
     
     def load_data(self, guild_id):
         """載入匿名貼文數據"""
-        return self.storage.load_guild_data(guild_id, 'anonymous', default={
+        path = self.get_data_path(guild_id)
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {
             'enabled_channels': [],  # 允許匿名發言的頻道
             'posts': {}  # 貼文記錄
-        })
+        }
     
     def save_data(self, guild_id, data):
         """保存匿名貼文數據"""
-        self.storage.save_guild_data(guild_id, 'anonymous', data)
+        path = self.get_data_path(guild_id)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
     
     # 創建匿名指令組
     anonymous_group = app_commands.Group(name="匿名", description="匿名發言系統")
@@ -145,7 +136,11 @@ class Anonymous(commands.Cog):
         
         # 創建視圖
         timestamp = datetime.now().isoformat()
-        view = AnonymousView(self)
+        view = AnonymousView(
+            author_id=interaction.user.id,
+            author_name=str(interaction.user),
+            timestamp=timestamp
+        )
         
         try:
             # 發送匿名訊息
@@ -315,7 +310,11 @@ class Anonymous(commands.Cog):
             
             # 為每個保存的貼文註冊視圖
             for message_id, post_data in data.get('posts', {}).items():
-                view = AnonymousView(self)
+                view = AnonymousView(
+                    author_id=int(post_data['author_id']),
+                    author_name=post_data['author_name'],
+                    timestamp=post_data['timestamp']
+                )
                 self.bot.add_view(view, message_id=int(message_id))
 
 async def setup(bot):

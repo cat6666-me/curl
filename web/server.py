@@ -6,87 +6,12 @@ import discord
 import os
 import base64
 import json
-from datetime import datetime
-
-
-GUILD_DOCUMENT_DEFAULTS = {
-    'welcome': {
-        'welcome_enabled': False,
-        'leave_enabled': False,
-        'welcome_channel': None,
-        'leave_channel': None,
-        'welcome_message': '歡迎 {user} 加入 {server}！',
-        'leave_message': '{username} 離開了伺服器'
-    },
-    'birthday_settings': {
-        'enabled': False,
-        'channel_id': None,
-        'message': '🎂 今天是 {user} 的生日！祝生日快樂！🎉'
-    },
-    'temp_voice': {
-        'enabled': False,
-        'trigger_channel_id': None,
-        'category_id': None,
-        'channel_name_format': '{username} 的頻道',
-        'user_limit': 0,
-        'default_bitrate': 64000
-    },
-    'tickets': {
-        'enabled': False,
-        'category_id': None,
-        'support_role_id': None,
-        'log_channel_id': None,
-        'panel_channel_id': None,
-        'panel_message_id': None,
-        'tickets': {},
-        'ticket_count': 0
-    },
-    'auto_reply': {
-        'enabled': True,
-        'rules': []
-    },
-    'security': {
-        'enabled': True,
-        'banned_words': [],
-        'timeout_duration': 60,
-        'action_type': 'timeout',
-        'whitelist_roles': [],
-        'whitelist_channels': [],
-        'case_sensitive': False,
-        'match_type': 'contains'
-    },
-    'anonymous': {
-        'enabled_channels': [],
-        'posts': {}
-    }
-}
-
-DEV_GUILD_CONFIG_KEYS = (
-    'levels',
-    'welcome',
-    'reaction_roles',
-    'daily',
-    'birthdays',
-    'birthday_settings',
-    'game_stats',
-    'statistics',
-    'custom_commands',
-    'temp_voice',
-    'warnings',
-    'achievements',
-    'tickets',
-    'auto_reply',
-    'security',
-    'anonymous',
-    'profiles'
-)
 
 class WebServer:
     """網頁後台控制器"""
     
     def __init__(self, bot, host='0.0.0.0', port=8080):
         self.bot = bot
-        self.storage = bot.storage
         self.host = host
         self.port = port
         
@@ -95,44 +20,13 @@ class WebServer:
         self.client_secret = os.getenv('DISCORD_CLIENT_SECRET')
         self.redirect_uri = os.getenv('DISCORD_REDIRECT_URI', f'http://localhost:{port}/callback')
         
-        # 開發者 ID
-        dev_ids = os.getenv('DEV_ID', '')
-        self.dev_ids = [int(id.strip()) for id in dev_ids.split(',') if id.strip()]
-        
         # Session 密鑰
         session_secret = os.getenv('SESSION_SECRET', fernet.Fernet.generate_key().decode())
         secret_key = base64.urlsafe_b64decode(session_secret.encode() if len(session_secret) == 44 else base64.urlsafe_b64encode(session_secret.encode()[:32]))
         
         # 創建應用
-        self.app = web.Application(middlewares=[session_middleware(EncryptedCookieStorage(secret_key)), self.error_middleware])
+        self.app = web.Application(middlewares=[session_middleware(EncryptedCookieStorage(secret_key))])
         self.setup_routes()
-    
-    @web.middleware
-    async def error_middleware(self, request, handler):
-        """錯誤處理中間件"""
-        try:
-            response = await handler(request)
-            # 處理404錯誤
-            if response.status == 404:
-                # 如果是API請求，返回JSON
-                if request.path.startswith('/api/'):
-                    return response
-                # 如果是頁面請求，返回404.html
-                with open('web/404.html', 'r', encoding='utf-8') as f:
-                    html = f.read()
-                return web.Response(text=html, content_type='text/html', status=404)
-            return response
-        except web.HTTPException as ex:
-            # 處理HTTP異常
-            if ex.status == 404:
-                # 如果是API請求，返回JSON
-                if request.path.startswith('/api/'):
-                    return web.json_response({'error': 'Not found'}, status=404)
-                # 如果是頁面請求，返回404.html
-                with open('web/404.html', 'r', encoding='utf-8') as f:
-                    html = f.read()
-                return web.Response(text=html, content_type='text/html', status=404)
-            raise
     
     def setup_routes(self):
         """設定路由"""
@@ -178,42 +72,6 @@ class WebServer:
         self.app.router.add_post('/api/tickets/{guild_id}/{ticket_id}/close', self.api_close_ticket)
         self.app.router.add_get('/api/tickets/{guild_id}/{ticket_id}/transcript', self.api_get_ticket_transcript)
         self.app.router.add_post('/api/tickets/{guild_id}/create-panel', self.api_create_ticket_panel)
-        
-        # 自動回覆系統 API
-        self.app.router.add_get('/api/auto-reply/{guild_id}', self.api_get_auto_replies)
-        self.app.router.add_post('/api/auto-reply/{guild_id}', self.api_add_auto_reply)
-        self.app.router.add_put('/api/auto-reply/{guild_id}/{rule_id}', self.api_update_auto_reply)
-        self.app.router.add_delete('/api/auto-reply/{guild_id}/{rule_id}', self.api_delete_auto_reply)
-        self.app.router.add_post('/api/auto-reply/{guild_id}/toggle', self.api_toggle_auto_reply_system)
-        self.app.router.add_post('/api/auto-reply/{guild_id}/{rule_id}/toggle', self.api_toggle_auto_reply_rule)
-        
-        # 安全系統 API
-        self.app.router.add_get('/api/security/{guild_id}', self.api_get_security)
-        self.app.router.add_post('/api/security/{guild_id}', self.api_update_security)
-        self.app.router.add_post('/api/security/{guild_id}/banned-words', self.api_add_banned_word)
-        self.app.router.add_delete('/api/security/{guild_id}/banned-words', self.api_delete_banned_word)
-        
-        # 開發者面板 API
-        self.app.router.add_get('/dev-panel', self.dev_panel)
-        self.app.router.add_get('/api/dev/all-guilds', self.api_dev_all_guilds)
-        self.app.router.add_get('/api/dev/guild-config/{guild_id}', self.api_dev_guild_config)
-        self.app.router.add_get('/api/dev/guild-members/{guild_id}', self.api_dev_guild_members)
-
-    def _load_guild_document(self, guild_id, key):
-        """讀取 guild 文檔，必要時自動從舊 JSON 遷移。"""
-        return self.storage.load_guild_data(
-            guild_id,
-            key,
-            default=GUILD_DOCUMENT_DEFAULTS.get(key, {})
-        )
-
-    def _save_guild_document(self, guild_id, key, data):
-        """保存 guild 文檔到 SQLite。"""
-        self.storage.save_guild_data(guild_id, key, data)
-
-    def _has_guild_document(self, guild_id, key):
-        """檢查 guild 文檔是否存在。"""
-        return self.storage.has_guild_data(guild_id, key)
     
     async def index(self, request):
         """主頁"""
@@ -298,13 +156,7 @@ class WebServer:
         
         html = html.replace('{USERNAME}', user['username'])
         html = html.replace('{AVATAR_URL}', avatar_url)
-
-        if self.is_developer(user['id']):
-            dev_button = '<a href="/dev-panel" class="dev-btn">🛠️ 開發者面板</a>'
-        else:
-            dev_button = ''
-        html = html.replace('{DEV_BUTTON}', dev_button)
-
+        
         return web.Response(text=html, content_type='text/html')
     
     async def my_tickets(self, request):
@@ -335,9 +187,6 @@ class WebServer:
         
         access_token = session.get('access_token')
         
-        # 獲取機器人所在的伺服器
-        bot_guild_ids = {str(guild.id) for guild in self.bot.guilds}
-        
         # 獲取用戶的 Discord 伺服器
         async with ClientSession() as client_session:
             headers = {'Authorization': f"Bearer {access_token}"}
@@ -345,6 +194,9 @@ class WebServer:
                 if resp.status != 200:
                     return web.json_response({'error': 'Failed to fetch guilds'}, status=500)
                 user_guilds = await resp.json()
+        
+        # 獲取機器人所在的伺服器
+        bot_guild_ids = {str(guild.id) for guild in self.bot.guilds}
         
         # 過濾有管理權限且機器人也在的伺服器
         accessible_guilds = []
@@ -413,12 +265,16 @@ class WebServer:
         allowed_types = ['levels', 'welcome', 'reaction_roles', 'daily', 'birthdays', 'birthday_settings', 'game_stats', 'statistics']
         if data_type not in allowed_types:
             return web.json_response({'error': 'Invalid data type'}, status=400)
-
-        if not self._has_guild_document(guild_id, data_type):
+        
+        # 讀取數據文件
+        data_file = os.path.join('data', guild_id, f'{data_type}.json')
+        
+        if not os.path.exists(data_file):
             return web.json_response({'data': {}, 'exists': False})
-
+        
         try:
-            data = self._load_guild_document(guild_id, data_type)
+            with open(data_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             return web.json_response({'data': data, 'exists': True})
         except Exception as e:
             return web.json_response({'error': str(e)}, status=500)
@@ -440,16 +296,34 @@ class WebServer:
             
             if toggle_type not in ['welcome', 'leave']:
                 return web.json_response({'error': 'Invalid type'}, status=400)
-
-            settings = self._load_guild_document(guild_id, 'welcome')
+            
+            # 讀取現有設定
+            data_file = os.path.join('data', guild_id, 'welcome.json')
+            
+            if not os.path.exists(data_file):
+                # 創建預設設定
+                os.makedirs(os.path.dirname(data_file), exist_ok=True)
+                settings = {
+                    'welcome_enabled': False,
+                    'leave_enabled': False,
+                    'welcome_channel': None,
+                    'leave_channel': None,
+                    'welcome_message': '歡迎 {user} 加入 {server}！',
+                    'leave_message': '{username} 離開了伺服器'
+                }
+            else:
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
             
             # 更新設定
             if toggle_type == 'welcome':
                 settings['welcome_enabled'] = enabled
             else:
                 settings['leave_enabled'] = enabled
-
-            self._save_guild_document(guild_id, 'welcome', settings)
+            
+            # 儲存設定
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, ensure_ascii=False, indent=2)
             
             return web.json_response({
                 'success': True,
@@ -471,8 +345,24 @@ class WebServer:
         try:
             # 獲取請求數據
             data = await request.json()
-
-            settings = self._load_guild_document(guild_id, 'welcome')
+            
+            # 讀取現有設定
+            data_file = os.path.join('data', guild_id, 'welcome.json')
+            
+            if not os.path.exists(data_file):
+                # 創建預設設定
+                os.makedirs(os.path.dirname(data_file), exist_ok=True)
+                settings = {
+                    'welcome_enabled': False,
+                    'leave_enabled': False,
+                    'welcome_channel': None,
+                    'leave_channel': None,
+                    'welcome_message': '歡迎 {user} 加入 {server}！',
+                    'leave_message': '{username} 離開了伺服器'
+                }
+            else:
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
             
             # 更新設定（只更新提供的字段）
             if 'welcome_channel' in data:
@@ -483,8 +373,10 @@ class WebServer:
                 settings['welcome_message'] = data['welcome_message']
             if 'leave_message' in data:
                 settings['leave_message'] = data['leave_message']
-
-            self._save_guild_document(guild_id, 'welcome', settings)
+            
+            # 儲存設定
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, ensure_ascii=False, indent=2)
             
             return web.json_response({
                 'success': True,
@@ -502,9 +394,14 @@ class WebServer:
             return web.json_response({'error': 'Unauthorized'}, status=401)
         
         guild_id = request.match_info.get('guild_id')
+        data_file = os.path.join('data', guild_id, 'custom_commands.json')
+        
+        if not os.path.exists(data_file):
+            return web.json_response({'commands': {}})
         
         try:
-            commands = self._load_guild_document(guild_id, 'custom_commands')
+            with open(data_file, 'r', encoding='utf-8') as f:
+                commands = json.load(f)
             return web.json_response({'commands': commands})
         except Exception as e:
             return web.json_response({'error': str(e)}, status=500)
@@ -525,8 +422,15 @@ class WebServer:
             
             if not command_name or not response:
                 return web.json_response({'error': 'Missing name or response'}, status=400)
-
-            commands = self._load_guild_document(guild_id, 'custom_commands')
+            
+            data_file = os.path.join('data', guild_id, 'custom_commands.json')
+            os.makedirs(os.path.dirname(data_file), exist_ok=True)
+            
+            # 讀取現有命令
+            commands = {}
+            if os.path.exists(data_file):
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    commands = json.load(f)
             
             # 檢查命令是否已存在
             if command_name in commands:
@@ -540,8 +444,10 @@ class WebServer:
                 'created_at': datetime.utcnow().isoformat(),
                 'uses': 0
             }
-
-            self._save_guild_document(guild_id, 'custom_commands', commands)
+            
+            # 儲存
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(commands, f, ensure_ascii=False, indent=2)
             
             return web.json_response({'success': True, 'commands': commands})
         
@@ -564,11 +470,14 @@ class WebServer:
             
             if not new_response:
                 return web.json_response({'error': 'Missing response'}, status=400)
-
-            if not self._has_guild_document(guild_id, 'custom_commands'):
+            
+            data_file = os.path.join('data', guild_id, 'custom_commands.json')
+            
+            if not os.path.exists(data_file):
                 return web.json_response({'error': 'Commands file not found'}, status=404)
-
-            commands = self._load_guild_document(guild_id, 'custom_commands')
+            
+            with open(data_file, 'r', encoding='utf-8') as f:
+                commands = json.load(f)
             
             if command_name not in commands:
                 return web.json_response({'error': 'Command not found'}, status=404)
@@ -578,8 +487,10 @@ class WebServer:
             commands[command_name]['response'] = new_response
             commands[command_name]['edited_by'] = session.get('user')['id']
             commands[command_name]['edited_at'] = datetime.utcnow().isoformat()
-
-            self._save_guild_document(guild_id, 'custom_commands', commands)
+            
+            # 儲存
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(commands, f, ensure_ascii=False, indent=2)
             
             return web.json_response({'success': True, 'commands': commands})
         
@@ -597,19 +508,23 @@ class WebServer:
         command_name = request.match_info.get('command_name')
         
         try:
-
-            if not self._has_guild_document(guild_id, 'custom_commands'):
+            data_file = os.path.join('data', guild_id, 'custom_commands.json')
+            
+            if not os.path.exists(data_file):
                 return web.json_response({'error': 'Commands file not found'}, status=404)
-
-            commands = self._load_guild_document(guild_id, 'custom_commands')
+            
+            with open(data_file, 'r', encoding='utf-8') as f:
+                commands = json.load(f)
             
             if command_name not in commands:
                 return web.json_response({'error': 'Command not found'}, status=404)
             
             # 刪除命令
             del commands[command_name]
-
-            self._save_guild_document(guild_id, 'custom_commands', commands)
+            
+            # 儲存
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(commands, f, ensure_ascii=False, indent=2)
             
             return web.json_response({'success': True, 'commands': commands})
         
@@ -624,9 +539,23 @@ class WebServer:
             return web.json_response({'error': 'Unauthorized'}, status=401)
         
         guild_id = request.match_info.get('guild_id')
+        data_file = os.path.join('data', guild_id, 'temp_voice.json')
+        
+        if not os.path.exists(data_file):
+            return web.json_response({
+                'config': {
+                    'enabled': False,
+                    'trigger_channel_id': None,
+                    'category_id': None,
+                    'channel_name_format': '{username} 的頻道',
+                    'user_limit': 0,
+                    'default_bitrate': 64000
+                }
+            })
         
         try:
-            config = self._load_guild_document(guild_id, 'temp_voice')
+            with open(data_file, 'r', encoding='utf-8') as f:
+                config = json.load(f)
             return web.json_response({'config': config})
         except Exception as e:
             return web.json_response({'error': str(e)}, status=500)
@@ -642,8 +571,23 @@ class WebServer:
         
         try:
             data = await request.json()
-
-            config = self._load_guild_document(guild_id, 'temp_voice')
+            
+            data_file = os.path.join('data', guild_id, 'temp_voice.json')
+            os.makedirs(os.path.dirname(data_file), exist_ok=True)
+            
+            # 讀取現有配置
+            config = {
+                'enabled': False,
+                'trigger_channel_id': None,
+                'category_id': None,
+                'channel_name_format': '{username} 的頻道',
+                'user_limit': 0,
+                'default_bitrate': 64000
+            }
+            
+            if os.path.exists(data_file):
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
             
             # 更新配置
             if 'enabled' in data:
@@ -666,8 +610,10 @@ class WebServer:
                 config['user_limit'] = data['user_limit']
             if 'default_bitrate' in data:
                 config['default_bitrate'] = data['default_bitrate']
-
-            self._save_guild_document(guild_id, 'temp_voice', config)
+            
+            # 儲存
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(config, f, ensure_ascii=False, indent=2)
             
             return web.json_response({'success': True, 'config': config})
         
@@ -733,46 +679,28 @@ class WebServer:
         
         guild_id = request.match_info.get('guild_id')
         
-        # 檢查是否為開發者
-        is_dev = self.is_developer(user['id'])
-        
         # 驗證用戶是否有權限訪問此伺服器
+        access_token = session.get('access_token')
+        async with ClientSession() as client_session:
+            headers = {'Authorization': f"Bearer {access_token}"}
+            async with client_session.get('https://discord.com/api/users/@me/guilds', headers=headers) as resp:
+                if resp.status != 200:
+                    raise web.HTTPFound('/select-server')
+                user_guilds = await resp.json()
+        
+        # 檢查用戶是否在此伺服器且有管理權限
         has_access = False
         guild_name = "Unknown Server"
-        
-        if is_dev:
-            # 開發者直接允許訪問，從機器人獲取伺服器名稱
-            guild = self.bot.get_guild(int(guild_id))
-            if guild:
-                has_access = True
-                guild_name = guild.name
-            else:
-                with open('web/404.html', 'r', encoding='utf-8') as f:
-                    html = f.read()
-                return web.Response(text=html, content_type='text/html', status=404)
-        else:
-            # 非開發者需要有管理權限
-            access_token = session.get('access_token')
-            async with ClientSession() as client_session:
-                headers = {'Authorization': f"Bearer {access_token}"}
-                async with client_session.get('https://discord.com/api/users/@me/guilds', headers=headers) as resp:
-                    if resp.status != 200:
-                        raise web.HTTPFound('/select-server')
-                    user_guilds = await resp.json()
-            
-            # 檢查用戶是否在此伺服器且有管理權限
-            for guild in user_guilds:
-                if guild['id'] == guild_id:
-                    permissions = int(guild.get('permissions', 0))
-                    if permissions & 0x8 or permissions & 0x20:  # 管理員或管理伺服器
-                        has_access = True
-                        guild_name = guild['name']
-                        break
+        for guild in user_guilds:
+            if guild['id'] == guild_id:
+                permissions = int(guild.get('permissions', 0))
+                if permissions & 0x8 or permissions & 0x20:  # 管理員或管理伺服器
+                    has_access = True
+                    guild_name = guild['name']
+                    break
         
         if not has_access:
-            with open('web/404.html', 'r', encoding='utf-8') as f:
-                html = f.read()
-            return web.Response(text=html, content_type='text/html', status=404)
+            return web.Response(text="您沒有權限訪問此伺服器", status=403)
         
         with open('web/dashboard.html', 'r', encoding='utf-8') as f:
             html = f.read()
@@ -798,9 +726,12 @@ class WebServer:
         guild_id = request.match_info['guild_id']
         
         try:
-            warnings_data = self._load_guild_document(guild_id, 'warnings')
-            if not warnings_data:
+            file_path = f'./data/{guild_id}/warnings.json'
+            if not os.path.exists(file_path):
                 return web.json_response({'warnings': {}})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                warnings_data = json.load(f)
             
             # 獲取用戶信息
             guild = self.bot.get_guild(int(guild_id))
@@ -835,13 +766,19 @@ class WebServer:
         user_id = request.match_info['user_id']
         
         try:
-            warnings_data = self._load_guild_document(guild_id, 'warnings')
+            file_path = f'./data/{guild_id}/warnings.json'
+            if not os.path.exists(file_path):
+                return web.json_response({'success': True, 'message': '沒有警告記錄'})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                warnings_data = json.load(f)
             
             if user_id in warnings_data:
                 warn_count = len(warnings_data[user_id])
                 del warnings_data[user_id]
-
-                self._save_guild_document(guild_id, 'warnings', warnings_data)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(warnings_data, f, ensure_ascii=False, indent=4)
                 
                 return web.json_response({
                     'success': True, 
@@ -864,15 +801,21 @@ class WebServer:
         user_id = request.match_info['user_id']
         
         try:
-            warnings_data = self._load_guild_document(guild_id, 'warnings')
+            file_path = f'./data/{guild_id}/warnings.json'
+            if not os.path.exists(file_path):
+                return web.json_response({'success': False, 'message': '沒有警告記錄'})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                warnings_data = json.load(f)
             
             if user_id in warnings_data and len(warnings_data[user_id]) > 0:
                 removed = warnings_data[user_id].pop()
                 
                 if len(warnings_data[user_id]) == 0:
                     del warnings_data[user_id]
-
-                self._save_guild_document(guild_id, 'warnings', warnings_data)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(warnings_data, f, ensure_ascii=False, indent=4)
                 
                 return web.json_response({
                     'success': True, 
@@ -897,15 +840,21 @@ class WebServer:
         index = int(request.match_info['index'])
         
         try:
-            warnings_data = self._load_guild_document(guild_id, 'warnings')
+            file_path = f'./data/{guild_id}/warnings.json'
+            if not os.path.exists(file_path):
+                return web.json_response({'success': False, 'message': '沒有警告記錄'})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                warnings_data = json.load(f)
             
             if user_id in warnings_data and len(warnings_data[user_id]) > index >= 0:
                 removed = warnings_data[user_id].pop(index)
                 
                 if len(warnings_data[user_id]) == 0:
                     del warnings_data[user_id]
-
-                self._save_guild_document(guild_id, 'warnings', warnings_data)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(warnings_data, f, ensure_ascii=False, indent=4)
                 
                 return web.json_response({
                     'success': True, 
@@ -923,9 +872,12 @@ class WebServer:
         guild_id = request.match_info['guild_id']
         
         try:
-            achievements_data = self._load_guild_document(guild_id, 'achievements')
-            if not achievements_data:
+            file_path = f'./data/{guild_id}/achievements.json'
+            if not os.path.exists(file_path):
                 return web.json_response({'achievements': {}})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                achievements_data = json.load(f)
             
             # 獲取用戶信息和成就定義
             guild = self.bot.get_guild(int(guild_id))
@@ -974,7 +926,14 @@ class WebServer:
         achievement_id = request.match_info['achievement_id']
         
         try:
-            achievements_data = self._load_guild_document(guild_id, 'achievements')
+            file_path = f'./data/{guild_id}/achievements.json'
+            
+            # 載入數據
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    achievements_data = json.load(f)
+            else:
+                achievements_data = {}
             
             # 添加成就
             if user_id not in achievements_data:
@@ -982,8 +941,11 @@ class WebServer:
             
             if achievement_id not in achievements_data[user_id]:
                 achievements_data[user_id].append(achievement_id)
-
-                self._save_guild_document(guild_id, 'achievements', achievements_data)
+                
+                # 保存
+                os.makedirs(f'./data/{guild_id}', exist_ok=True)
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(achievements_data, f, ensure_ascii=False, indent=4)
                 
                 return web.json_response({
                     'success': True, 
@@ -1005,15 +967,21 @@ class WebServer:
         achievement_id = request.match_info['achievement_id']
         
         try:
-            achievements_data = self._load_guild_document(guild_id, 'achievements')
+            file_path = f'./data/{guild_id}/achievements.json'
+            if not os.path.exists(file_path):
+                return web.json_response({'success': False, 'message': '沒有成就記錄'})
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                achievements_data = json.load(f)
             
             if user_id in achievements_data and achievement_id in achievements_data[user_id]:
                 achievements_data[user_id].remove(achievement_id)
                 
                 if len(achievements_data[user_id]) == 0:
                     del achievements_data[user_id]
-
-                self._save_guild_document(guild_id, 'achievements', achievements_data)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(achievements_data, f, ensure_ascii=False, indent=4)
                 
                 return web.json_response({
                     'success': True, 
@@ -1038,13 +1006,22 @@ class WebServer:
         guild_id = request.match_info['guild_id']
         
         try:
-            exists = self._has_guild_document(guild_id, 'tickets')
-            data = self._load_guild_document(guild_id, 'tickets')
-            if not exists:
+            file_path = f'./data/{guild_id}/tickets.json'
+            if not os.path.exists(file_path):
                 return web.json_response({
                     'exists': False,
-                    'data': data
+                    'data': {
+                        'enabled': False,
+                        'category_id': None,
+                        'support_role_id': None,
+                        'log_channel_id': None,
+                        'tickets': {},
+                        'ticket_count': 0
+                    }
                 })
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             
             # 豐富客服單信息（添加用戶名等）
             guild = self.bot.get_guild(int(guild_id))
@@ -1074,7 +1051,21 @@ class WebServer:
         
         try:
             body = await request.json()
-            data = self._load_guild_document(guild_id, 'tickets')
+            file_path = f'./data/{guild_id}/tickets.json'
+            
+            # 讀取現有數據
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            else:
+                data = {
+                    'enabled': False,
+                    'category_id': None,
+                    'support_role_id': None,
+                    'log_channel_id': None,
+                    'tickets': {},
+                    'ticket_count': 0
+                }
             
             # 更新設定
             if 'enabled' in body:
@@ -1088,7 +1079,10 @@ class WebServer:
             if 'panel_channel_id' in body:
                 data['panel_channel_id'] = body['panel_channel_id']
             
-            self._save_guild_document(guild_id, 'tickets', data)
+            # 保存數據
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
             
             return web.json_response({'success': True, 'message': '設定已更新'})
             
@@ -1119,12 +1113,14 @@ class WebServer:
             # 遍歷所有伺服器，找出用戶的客服單
             for guild in self.bot.guilds:
                 guild_id = str(guild.id)
-
-                if not self._has_guild_document(guild_id, 'tickets'):
+                file_path = f'./data/{guild_id}/tickets.json'
+                
+                if not os.path.exists(file_path):
                     continue
                 
                 try:
-                    data = self._load_guild_document(guild_id, 'tickets')
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
                     
                     # 找出屬於該用戶的客服單
                     for ticket_id, ticket in data.get('tickets', {}).items():
@@ -1167,7 +1163,12 @@ class WebServer:
         
         try:
             # 獲取客服單數據
-            data = self._load_guild_document(guild_id, 'tickets')
+            file_path = f'./data/{guild_id}/tickets.json'
+            if not os.path.exists(file_path):
+                return web.json_response({'error': '找不到客服單'}, status=404)
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             
             if ticket_id not in data['tickets']:
                 return web.json_response({'error': '客服單不存在'}, status=404)
@@ -1256,14 +1257,30 @@ class WebServer:
             
             # 發送面板
             message = await channel.send(embed=embed, view=view)
-
+            
             # 保存面板訊息ID
-            data = self._load_guild_document(guild_id, 'tickets')
+            file_path = f'./data/{guild_id}/tickets.json'
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            else:
+                data = {
+                    'enabled': False,
+                    'category_id': None,
+                    'support_role_id': None,
+                    'log_channel_id': None,
+                    'panel_channel_id': None,
+                    'panel_message_id': None,
+                    'tickets': {},
+                    'ticket_count': 0
+                }
             
             data['panel_channel_id'] = str(channel_id)
             data['panel_message_id'] = str(message.id)
-
-            self._save_guild_document(guild_id, 'tickets', data)
+            
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
             
             return web.json_response({
                 'success': True,
@@ -1275,529 +1292,6 @@ class WebServer:
         except Exception as e:
             return web.json_response({'error': str(e)}, status=500)
     
-    # ===== 自動回覆系統 API =====
-    
-    async def api_get_auto_replies(self, request):
-        """API：獲取自動回覆規則"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        
-        try:
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            # 獲取伺服器頻道和角色信息
-            guild = self.bot.get_guild(int(guild_id))
-            if guild:
-                # 添加頻道和角色名稱
-                for rule in data.get('rules', []):
-                    # 添加頻道名稱
-                    if 'channel_ids' in rule:
-                        channels = []
-                        for ch_id in rule['channel_ids']:
-                            channel = guild.get_channel(int(ch_id))
-                            if channel:
-                                channels.append({'id': ch_id, 'name': channel.name})
-                        rule['channels'] = channels
-                    
-                    # 添加角色名稱
-                    if 'role_ids' in rule:
-                        roles = []
-                        for role_id in rule['role_ids']:
-                            role = guild.get_role(int(role_id))
-                            if role:
-                                roles.append({'id': role_id, 'name': role.name})
-                        rule['roles'] = roles
-            
-            return web.json_response(data)
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_add_auto_reply(self, request):
-        """API：添加自動回覆規則"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        
-        try:
-            data_input = await request.json()
-
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            # 創建新規則
-            new_rule = {
-                'id': max([r.get('id', 0) for r in data.get('rules', [])] + [0]) + 1,
-                'trigger': data_input.get('trigger', ''),
-                'reply': data_input.get('reply', ''),
-                'match_type': data_input.get('match_type', 'contains'),
-                'reply_type': data_input.get('reply_type', 'message'),
-                'enabled': data_input.get('enabled', True),
-                'case_sensitive': data_input.get('case_sensitive', False),
-                'mention_user': data_input.get('mention_user', False),
-                'trigger_once': data_input.get('trigger_once', False),
-                'channel_ids': data_input.get('channel_ids', []),
-                'role_ids': data_input.get('role_ids', []),
-                'reaction': data_input.get('reaction', '👍'),
-                'triggered_count': 0,
-                'created_at': datetime.now().isoformat(),
-                'created_by': session.get('user', {}).get('id')
-            }
-            
-            data.setdefault('rules', []).append(new_rule)
-            
-            self._save_guild_document(guild_id, 'auto_reply', data)
-            
-            return web.json_response({'success': True, 'rule': new_rule})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_update_auto_reply(self, request):
-        """API：更新自動回覆規則"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        rule_id = int(request.match_info.get('rule_id'))
-        
-        try:
-            data_input = await request.json()
-
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            # 查找並更新規則
-            found = False
-            for rule in data.get('rules', []):
-                if rule['id'] == rule_id:
-                    rule['trigger'] = data_input.get('trigger', rule['trigger'])
-                    rule['reply'] = data_input.get('reply', rule['reply'])
-                    rule['match_type'] = data_input.get('match_type', rule['match_type'])
-                    rule['reply_type'] = data_input.get('reply_type', rule['reply_type'])
-                    rule['enabled'] = data_input.get('enabled', rule['enabled'])
-                    rule['case_sensitive'] = data_input.get('case_sensitive', rule.get('case_sensitive', False))
-                    rule['mention_user'] = data_input.get('mention_user', rule.get('mention_user', False))
-                    rule['trigger_once'] = data_input.get('trigger_once', rule.get('trigger_once', False))
-                    rule['channel_ids'] = data_input.get('channel_ids', rule.get('channel_ids', []))
-                    rule['role_ids'] = data_input.get('role_ids', rule.get('role_ids', []))
-                    rule['reaction'] = data_input.get('reaction', rule.get('reaction', '👍'))
-                    rule['updated_at'] = datetime.now().isoformat()
-                    found = True
-                    break
-            
-            if not found:
-                return web.json_response({'error': '找不到指定規則'}, status=404)
-            
-            self._save_guild_document(guild_id, 'auto_reply', data)
-            
-            return web.json_response({'success': True})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_delete_auto_reply(self, request):
-        """API：刪除自動回覆規則"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        rule_id = int(request.match_info.get('rule_id'))
-        
-        try:
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            # 刪除規則
-            original_length = len(data.get('rules', []))
-            data['rules'] = [r for r in data.get('rules', []) if r['id'] != rule_id]
-            
-            if len(data['rules']) == original_length:
-                return web.json_response({'error': '找不到指定規則'}, status=404)
-            
-            self._save_guild_document(guild_id, 'auto_reply', data)
-            
-            return web.json_response({'success': True})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_toggle_auto_reply_system(self, request):
-        """API：開關自動回覆系統"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        
-        try:
-            data_input = await request.json()
-            enabled = data_input.get('enabled', True)
-
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            data['enabled'] = enabled
-            
-            self._save_guild_document(guild_id, 'auto_reply', data)
-            
-            return web.json_response({'success': True, 'enabled': enabled})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_toggle_auto_reply_rule(self, request):
-        """API：開關特定自動回覆規則"""
-        session = await get_session(request)
-        
-        if not session.get('user'):
-            return web.json_response({'error': 'Unauthorized'}, status=401)
-        
-        guild_id = request.match_info.get('guild_id')
-        rule_id = int(request.match_info.get('rule_id'))
-        
-        try:
-            data_input = await request.json()
-            enabled = data_input.get('enabled', True)
-
-            data = self._load_guild_document(guild_id, 'auto_reply')
-            
-            # 更新規則狀態
-            found = False
-            for rule in data.get('rules', []):
-                if rule['id'] == rule_id:
-                    rule['enabled'] = enabled
-                    found = True
-                    break
-            
-            if not found:
-                return web.json_response({'error': '找不到指定規則'}, status=404)
-            
-            self._save_guild_document(guild_id, 'auto_reply', data)
-            
-            return web.json_response({'success': True, 'enabled': enabled})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    # ==================== 安全系統 API ====================
-    
-    async def api_get_security(self, request):
-        """獲取安全系統設定"""
-        try:
-            guild_id = request.match_info['guild_id']
-            
-            # 檢查權限
-            session = await get_session(request)
-            user = session.get('user')
-            if not user:
-                return web.json_response({'error': '未登入'}, status=401)
-
-            data = self._load_guild_document(guild_id, 'security')
-            
-            return web.json_response(data)
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_update_security(self, request):
-        """更新安全系統設定"""
-        try:
-            guild_id = request.match_info['guild_id']
-            
-            # 檢查權限
-            session = await get_session(request)
-            user = session.get('user')
-            if not user:
-                return web.json_response({'error': '未登入'}, status=401)
-            
-            # 讀取請求數據
-            data = await request.json()
-            
-            # 驗證數據
-            if 'timeout_duration' in data:
-                timeout = data['timeout_duration']
-                if not isinstance(timeout, int) or timeout < 1 or timeout > 2419200:
-                    return web.json_response({'error': '超時時長必須在 1-2419200 秒之間'}, status=400)
-            
-            if 'action_type' in data:
-                if data['action_type'] not in ['timeout', 'delete', 'warn']:
-                    return web.json_response({'error': '無效的處罰類型'}, status=400)
-            
-            if 'match_type' in data:
-                if data['match_type'] not in ['contains', 'exact', 'regex']:
-                    return web.json_response({'error': '無效的匹配模式'}, status=400)
-
-            existing_data = self._load_guild_document(guild_id, 'security')
-            
-            # 更新數據
-            existing_data.update(data)
-            
-            self._save_guild_document(guild_id, 'security', existing_data)
-            
-            return web.json_response({'success': True, 'data': existing_data})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_add_banned_word(self, request):
-        """添加違禁詞"""
-        try:
-            guild_id = request.match_info['guild_id']
-            
-            # 檢查權限
-            session = await get_session(request)
-            user = session.get('user')
-            if not user:
-                return web.json_response({'error': '未登入'}, status=401)
-            
-            # 讀取請求數據
-            data = await request.json()
-            word = data.get('word', '').strip()
-            
-            if not word:
-                return web.json_response({'error': '違禁詞不能為空'}, status=400)
-
-            security_data = self._load_guild_document(guild_id, 'security')
-            
-            # 檢查是否已存在
-            if word in security_data['banned_words']:
-                return web.json_response({'error': '該違禁詞已存在'}, status=400)
-            
-            # 添加違禁詞
-            security_data['banned_words'].append(word)
-            
-            self._save_guild_document(guild_id, 'security', security_data)
-            
-            return web.json_response({'success': True, 'word': word, 'banned_words': security_data['banned_words']})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_delete_banned_word(self, request):
-        """刪除違禁詞"""
-        try:
-            guild_id = request.match_info['guild_id']
-            
-            # 檢查權限
-            session = await get_session(request)
-            user = session.get('user')
-            if not user:
-                return web.json_response({'error': '未登入'}, status=401)
-            
-            # 讀取請求數據
-            data = await request.json()
-            word = data.get('word', '').strip()
-            
-            if not word:
-                return web.json_response({'error': '違禁詞不能為空'}, status=400)
-
-            security_data = self._load_guild_document(guild_id, 'security')
-            
-            # 檢查是否存在
-            if word not in security_data['banned_words']:
-                return web.json_response({'error': '該違禁詞不存在'}, status=404)
-            
-            # 移除違禁詞
-            security_data['banned_words'].remove(word)
-            
-            self._save_guild_document(guild_id, 'security', security_data)
-            
-            return web.json_response({'success': True, 'word': word, 'banned_words': security_data['banned_words']})
-        except Exception as e:
-            return web.json_response({'error': str(e)}, status=500)
-    
-    def is_developer(self, user_id):
-        """檢查用戶是否為開發者"""
-        return int(user_id) in self.dev_ids
-    
-    async def dev_panel(self, request):
-        """開發者面板"""
-        session = await get_session(request)
-        user = session.get('user')
-        
-        if not user:
-            raise web.HTTPFound('/login')
-        
-        # 驗證是否為開發者
-        if not self.is_developer(user['id']):
-            with open('web/404.html', 'r', encoding='utf-8') as f:
-                html = f.read()
-            return web.Response(text=html, content_type='text/html', status=404)
-        
-        with open('web/dev-panel.html', 'r', encoding='utf-8') as f:
-            html = f.read()
-        
-        # 替換用戶資訊
-        avatar_url = f"https://cdn.discordapp.com/avatars/{user['id']}/{user['avatar']}.png" if user.get('avatar') else "https://cdn.discordapp.com/embed/avatars/0.png"
-        
-        html = html.replace('{USERNAME}', user['username'])
-        html = html.replace('{AVATAR_URL}', avatar_url)
-        
-        return web.Response(text=html, content_type='text/html')
-    
-    async def api_dev_all_guilds(self, request):
-        """API：獲取所有伺服器列表（開發者專用）"""
-        try:
-            session = await get_session(request)
-            user = session.get('user')
-            
-            if not user:
-                return web.json_response({'error': 'Unauthorized'}, status=401)
-            
-            # 驗證是否為開發者
-            if not self.is_developer(user['id']):
-                return web.json_response({'error': 'Forbidden'}, status=403)
-            
-            # 獲取所有伺服器資訊
-            guilds_data = []
-            for guild in self.bot.guilds:
-                try:
-                    # 獲取伺服器圖標
-                    icon_url = str(guild.icon.url) if guild.icon else None
-                    
-                    # 計算在線成員數
-                    online_count = sum(1 for m in guild.members if m.status != discord.Status.offline)
-                    
-                    guilds_data.append({
-                        'id': str(guild.id),
-                        'name': guild.name,
-                        'icon': icon_url,
-                        'member_count': guild.member_count,
-                        'online_count': online_count,
-                        'owner_id': str(guild.owner_id),
-                        'created_at': guild.created_at.isoformat(),
-                        'text_channels': len(guild.text_channels),
-                        'voice_channels': len(guild.voice_channels),
-                        'roles': len(guild.roles),
-                        'emojis': len(guild.emojis)
-                    })
-                except Exception as e:
-                    print(f"處理伺服器 {guild.id} 時出錯: {e}")
-                    # 繼續處理其他伺服器
-                    continue
-            
-            return web.json_response({'guilds': guilds_data, 'total': len(guilds_data)})
-        except Exception as e:
-            print(f"api_dev_all_guilds 錯誤: {e}")
-            import traceback
-            traceback.print_exc()
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_dev_guild_config(self, request):
-        """API：獲取伺服器所有配置（開發者專用）"""
-        try:
-            session = await get_session(request)
-            user = session.get('user')
-            
-            if not user:
-                return web.json_response({'error': 'Unauthorized'}, status=401)
-            
-            # 驗證是否為開發者
-            if not self.is_developer(user['id']):
-                return web.json_response({'error': 'Forbidden'}, status=403)
-            
-            guild_id = request.match_info.get('guild_id')
-            guild = self.bot.get_guild(int(guild_id))
-            
-            if not guild:
-                return web.json_response({'error': 'Guild not found'}, status=404)
-
-            configs = {}
-
-            for config_name in DEV_GUILD_CONFIG_KEYS:
-                try:
-                    if self._has_guild_document(guild_id, config_name):
-                        configs[config_name] = self._load_guild_document(guild_id, config_name)
-                except Exception as e:
-                    print(f"讀取配置 {config_name} 失敗: {e}")
-                    configs[config_name] = {'error': str(e)}
-            
-            # 獲取伺服器基本資訊
-            guild_info = {
-                'id': str(guild.id),
-                'name': guild.name,
-                'icon': str(guild.icon.url) if guild.icon else None,
-                'owner': str(guild.owner) if guild.owner else 'Unknown',
-                'owner_id': str(guild.owner_id),
-                'member_count': guild.member_count,
-                'created_at': guild.created_at.isoformat(),
-                'premium_tier': guild.premium_tier,
-                'premium_subscription_count': guild.premium_subscription_count or 0,
-                'description': guild.description,
-                'features': list(guild.features),
-                'verification_level': str(guild.verification_level),
-                'channels': {
-                    'text': len(guild.text_channels),
-                    'voice': len(guild.voice_channels),
-                    'categories': len(guild.categories),
-                    'total': len(guild.channels)
-                },
-                'roles': len(guild.roles),
-                'emojis': len(guild.emojis)
-            }
-            
-            return web.json_response({
-                'guild_info': guild_info,
-                'configs': configs
-            })
-        except Exception as e:
-            print(f"api_dev_guild_config 錯誤: {e}")
-            import traceback
-            traceback.print_exc()
-            return web.json_response({'error': str(e)}, status=500)
-    
-    async def api_dev_guild_members(self, request):
-        """API：獲取伺服器成員列表（開發者專用）"""
-        try:
-            session = await get_session(request)
-            user = session.get('user')
-            
-            if not user:
-                return web.json_response({'error': 'Unauthorized'}, status=401)
-            
-            # 驗證是否為開發者
-            if not self.is_developer(user['id']):
-                return web.json_response({'error': 'Forbidden'}, status=403)
-            
-            guild_id = request.match_info.get('guild_id')
-            guild = self.bot.get_guild(int(guild_id))
-            
-            if not guild:
-                return web.json_response({'error': 'Guild not found'}, status=404)
-            
-            # 獲取成員列表（限制前100個，避免過大）
-            limit = int(request.query.get('limit', 100))
-            members_data = []
-            
-            for member in list(guild.members)[:limit]:
-                try:
-                    members_data.append({
-                        'id': str(member.id),
-                        'name': member.name,
-                        'display_name': member.display_name,
-                        'avatar': str(member.display_avatar.url),
-                        'bot': member.bot,
-                        'status': str(member.status),
-                        'joined_at': member.joined_at.isoformat() if member.joined_at else None,
-                        'roles': [role.name for role in member.roles if role.name != '@everyone'],
-                        'top_role': member.top_role.name if member.top_role else None
-                    })
-                except Exception as e:
-                    print(f"處理成員 {member.id} 時出錯: {e}")
-                    # 繼續處理其他成員
-                    continue
-            
-            return web.json_response({
-                'members': members_data,
-                'total': guild.member_count,
-                'shown': len(members_data)
-            })
-        except Exception as e:
-            print(f"api_dev_guild_members 錯誤: {e}")
-            import traceback
-            traceback.print_exc()
-            return web.json_response({'error': str(e)}, status=500)
-    
     async def start(self):
         """啟動 Web 伺服器"""
         runner = web.AppRunner(self.app)
@@ -1806,5 +1300,3 @@ class WebServer:
         await site.start()
         print(f'🌐 網頁控制台已啟動: http://{self.host}:{self.port}')
         print(f'   本地訪問: http://localhost:{self.port}')
-        if self.dev_ids:
-            print(f'👨‍💻 開發者面板: http://localhost:{self.port}/dev-panel')

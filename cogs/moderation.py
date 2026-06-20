@@ -1,6 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
+import os
 from datetime import datetime
 
 class Moderation(commands.Cog):
@@ -8,15 +10,26 @@ class Moderation(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
+    
+    def get_data_path(self, guild_id):
+        """獲取數據路徑"""
+        path = f'./data/{guild_id}'
+        os.makedirs(path, exist_ok=True)
+        return path
     
     def load_warnings(self, guild_id):
         """載入警告數據"""
-        return self.storage.load_guild_data(guild_id, 'warnings', default={})
+        file_path = f'{self.get_data_path(guild_id)}/warnings.json'
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
     
     def save_warnings(self, guild_id, data):
         """保存警告數據"""
-        self.storage.save_guild_data(guild_id, 'warnings', data)
+        file_path = f'{self.get_data_path(guild_id)}/warnings.json'
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
     
     async def check_auto_punishment(self, interaction: discord.Interaction, member: discord.Member, warn_count: int):
         """檢查並執行自動處罰"""

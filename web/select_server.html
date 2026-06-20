@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>选择服务器 - Discord Bot</title>
+    <title>選擇伺服器 - Discord Bot</title>
     <style>
         * {
             margin: 0;
@@ -79,25 +79,6 @@
 
         .tickets-btn:hover {
             background: #1d4ed8;
-        }
-
-        .dev-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-            font-weight: 600;
-        }
-
-        .dev-btn:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
         }
 
         .container {
@@ -248,7 +229,7 @@
             margin-bottom: 1rem;
         }
 
-        /* 移动端响应式样式 */
+        /* 移動端響應式樣式 */
         @media (max-width: 768px) {
             .navbar {
                 padding: 1rem;
@@ -320,30 +301,29 @@
         <div class="navbar-user">
             <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
             <span class="user-name">{USERNAME}</span>
-            {DEV_BUTTON}
-            <a href="/my-tickets" class="tickets-btn">🎫 我的工单</a>
-            <a href="/logout" class="logout-btn">退出登录</a>
+            <a href="/my-tickets" class="tickets-btn">🎫 我的客服單</a>
+            <a href="/logout" class="logout-btn">登出</a>
         </div>
     </div>
 
     <div class="container">
         <div class="header">
-            <h1>选择服务器</h1>
-            <p>选择一个服务器以查看和管理机器人设置</p>
+            <h1>選擇伺服器</h1>
+            <p>選擇一個伺服器以查看和管理機器人設定</p>
         </div>
 
         <div id="loading" class="loading">
             <div class="loading-spinner"></div>
-            <p>加载服务器列表中...</p>
+            <p>載入伺服器列表中...</p>
         </div>
 
         <div id="error" style="display: none;"></div>
         <div id="guilds" class="guilds-grid" style="display: none;"></div>
         <div id="no-guilds" class="no-guilds" style="display: none;">
-            <div class="no-guilds-icon">暂无服务器</div>
-            <div class="no-guilds-title">没有可管理的服务器</div>
+            <div class="no-guilds-icon">沒有伺服器</div>
+            <div class="no-guilds-title">沒有可管理的伺服器</div>
             <div class="no-guilds-text">
-                您需要在至少一个安装了此机器人的服务器中拥有管理权限才能使用控制台。
+                您需要在至少一個安裝了此機器人的伺服器中擁有管理權限才能使用控制台。
             </div>
         </div>
     </div>
@@ -353,7 +333,7 @@
             try {
                 const response = await fetch('/api/guilds');
                 if (!response.ok) {
-                    throw new Error('加载失败');
+                    throw new Error('載入失敗');
                 }
                 
                 const data = await response.json();
@@ -383,10 +363,10 @@
                             <div class="guild-icon">${icon}</div>
                             <div class="guild-info">
                                 <div class="guild-name">${guild.name}</div>
-                                <div class="guild-members">${guild.member_count.toLocaleString()} 位成员</div>
+                                <div class="guild-members">${guild.member_count.toLocaleString()} 位成員</div>
                             </div>
                         </div>
-                        <span class="guild-badge">有管理权限</span>
+                        <span class="guild-badge">有管理權限</span>
                     `;
                     
                     guildsContainer.appendChild(card);
@@ -396,7 +376,7 @@
                 document.getElementById('loading').style.display = 'none';
                 const errorDiv = document.getElementById('error');
                 errorDiv.className = 'error';
-                errorDiv.textContent = '加载服务器列表时发生错误：' + error.message;
+                errorDiv.textContent = '載入伺服器列表時發生錯誤：' + error.message;
                 errorDiv.style.display = 'block';
             }
         }

@@ -1,6 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
+import os
 from typing import Optional
 
 class TempVoice(commands.Cog):
@@ -8,24 +10,36 @@ class TempVoice(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
+        self.data_folder = './data'
         # 追蹤臨時頻道 {channel_id: owner_id}
         self.temp_channels = {}
     
+    def get_config_file(self, guild_id: int) -> str:
+        """獲取伺服器的臨時語音配置檔案路徑"""
+        folder = os.path.join(self.data_folder, str(guild_id))
+        os.makedirs(folder, exist_ok=True)
+        return os.path.join(folder, 'temp_voice.json')
+    
     def load_config(self, guild_id: int) -> dict:
         """載入臨時語音配置"""
-        return self.storage.load_guild_data(guild_id, 'temp_voice', default={
+        file_path = self.get_config_file(guild_id)
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {
             'enabled': False,
             'trigger_channel_id': None,
             'category_id': None,
             'channel_name_format': '{username} 的頻道',
             'user_limit': 0,
             'default_bitrate': 64000
-        })
+        }
     
     def save_config(self, guild_id: int, config: dict):
         """儲存臨時語音配置"""
-        self.storage.save_guild_data(guild_id, 'temp_voice', config)
+        file_path = self.get_config_file(guild_id)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
     
     voice_group = app_commands.Group(name="臨時語音", description="臨時語音頻道管理")
     

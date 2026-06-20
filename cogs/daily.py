@@ -1,6 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import json
+import os
 from datetime import datetime, timedelta
 import random
 
@@ -9,16 +11,29 @@ class Daily(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
+        self.data_dir = "data"
         self.daily_data = {}
+        os.makedirs(self.data_dir, exist_ok=True)
+    
+    def get_data_file(self, guild_id: str):
+        """獲取伺服器數據檔案路徑"""
+        guild_dir = os.path.join(self.data_dir, guild_id)
+        os.makedirs(guild_dir, exist_ok=True)
+        return os.path.join(guild_dir, "daily.json")
     
     def load_data(self, guild_id: str):
         """載入簽到數據"""
-        return self.storage.load_guild_data(guild_id, "daily", default={})
+        data_file = self.get_data_file(guild_id)
+        if os.path.exists(data_file):
+            with open(data_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
     
     def save_data(self, guild_id: str):
         """保存簽到數據"""
-        self.storage.save_guild_data(guild_id, "daily", self.daily_data.get(guild_id, {}))
+        data_file = self.get_data_file(guild_id)
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(self.daily_data.get(guild_id, {}), f, indent=2, ensure_ascii=False)
     
     def get_user_data(self, guild_id: str, user_id: str):
         """獲取用戶簽到數據"""

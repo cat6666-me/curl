@@ -12,13 +12,25 @@ class Games(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.storage = bot.storage
         self.active_games = {}  # 儲存進行中的遊戲
     
     def save_game_stats(self, guild_id: int, user_id: int, game_type: str, won: bool):
         """儲存遊戲統計"""
+        guild_id_str = str(guild_id)
         user_id_str = str(user_id)
-        data = self.storage.load_guild_data(guild_id, 'game_stats', default={})
+        
+        # 確保目錄存在
+        data_dir = os.path.join('data', guild_id_str)
+        os.makedirs(data_dir, exist_ok=True)
+        
+        file_path = os.path.join(data_dir, 'game_stats.json')
+        
+        # 讀取現有數據
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = {}
         
         # 初始化用戶數據
         if user_id_str not in data:
@@ -41,31 +53,43 @@ class Games(commands.Cog):
         if won:
             data[user_id_str]['games'][game_type]['won'] += 1
         
-        self.storage.save_guild_data(guild_id, 'game_stats', data)
+        # 儲存數據
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
     
     def add_rewards(self, guild_id: int, user_id: int, won: bool):
         """添加獎勵（經驗值和積分）"""
         # 添加簽到積分
         try:
-            daily_data = self.storage.load_guild_data(guild_id, 'daily', default={})
-
-            user_id_str = str(user_id)
-            if user_id_str in daily_data:
-                points = 5 if won else 1  # 贏了+5，輸了+1
-                daily_data[user_id_str]['total_points'] = daily_data[user_id_str].get('total_points', 0) + points
-                self.storage.save_guild_data(guild_id, 'daily', daily_data)
+            daily_file = os.path.join('data', str(guild_id), 'daily.json')
+            if os.path.exists(daily_file):
+                with open(daily_file, 'r', encoding='utf-8') as f:
+                    daily_data = json.load(f)
+                
+                user_id_str = str(user_id)
+                if user_id_str in daily_data:
+                    points = 5 if won else 1  # 贏了+5，輸了+1
+                    daily_data[user_id_str]['total_points'] = daily_data[user_id_str].get('total_points', 0) + points
+                    
+                    with open(daily_file, 'w', encoding='utf-8') as f:
+                        json.dump(daily_data, f, ensure_ascii=False, indent=2)
         except:
             pass
         
         # 添加經驗值
         try:
-            levels_data = self.storage.load_guild_data(guild_id, 'levels', default={})
-
-            user_id_str = str(user_id)
-            if user_id_str in levels_data:
-                xp = 10 if won else 3  # 贏了+10 XP，輸了+3 XP
-                levels_data[user_id_str]['xp'] = levels_data[user_id_str].get('xp', 0) + xp
-                self.storage.save_guild_data(guild_id, 'levels', levels_data)
+            levels_file = os.path.join('data', str(guild_id), 'levels.json')
+            if os.path.exists(levels_file):
+                with open(levels_file, 'r', encoding='utf-8') as f:
+                    levels_data = json.load(f)
+                
+                user_id_str = str(user_id)
+                if user_id_str in levels_data:
+                    xp = 10 if won else 3  # 贏了+10 XP，輸了+3 XP
+                    levels_data[user_id_str]['xp'] = levels_data[user_id_str].get('xp', 0) + xp
+                    
+                    with open(levels_file, 'w', encoding='utf-8') as f:
+                        json.dump(levels_data, f, ensure_ascii=False, indent=2)
         except:
             pass
     
@@ -381,12 +405,15 @@ class Games(commands.Cog):
     async def game_stats(self, interaction: discord.Interaction, user: discord.Member = None):
         """查看遊戲統計"""
         target = user or interaction.user
-
-        data = self.storage.load_guild_data(interaction.guild.id, 'game_stats', default={})
-
-        if not data:
+        
+        file_path = os.path.join('data', str(interaction.guild.id), 'game_stats.json')
+        
+        if not os.path.exists(file_path):
             await interaction.response.send_message("❌ 還沒有遊戲統計數據", ephemeral=True)
             return
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
         user_id_str = str(target.id)
         
@@ -424,10 +451,17 @@ class Games(commands.Cog):
     @game.command(name="排行榜", description="查看遊戲勝率排行榜")
     async def game_leaderboard(self, interaction: discord.Interaction):
         """遊戲排行榜"""
-        data = self.storage.load_guild_data(interaction.guild.id, 'game_stats', default={})
-
-        if not data:
+        file_path = os.path.join('data', str(interaction.guild.id), 'game_stats.json')
+        
+        if not os.path.exists(file_path):
             await interaction.response.send_message("❌ 還沒有遊戲統計數據", ephemeral=True)
+            return
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not data:
+            await interaction.response.send_message("❌ 還沒有人玩過遊戲", ephemeral=True)
             return
         
         # 計算勝率並排序（至少玩過5場）

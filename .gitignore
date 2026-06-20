@@ -45,8 +45,3 @@ Thumbs.db
 
 # 脚本工具
 git_upload.bat
-get_command_ids.py
-command.md
-storage.py
-test_routes.py
-TROUBLESHOOTING.md

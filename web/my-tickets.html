@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的工单 - CURL Bot</title>
+    <title>我的客服單 - CURL Bot</title>
     <style>
         * {
             margin: 0;
@@ -438,11 +438,11 @@
         <a href="/" class="navbar-brand">🌀 CURL Bot</a>
         <div class="navbar-nav">
             <a href="/select-server" class="nav-link">管理面板</a>
-            <a href="/my-tickets" class="nav-link active">我的工单</a>
+            <a href="/my-tickets" class="nav-link active">我的客服單</a>
             <div class="user-info">
                 <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
                 <span>{USERNAME}</span>
-                <a href="/logout" class="nav-link">退出登录</a>
+                <a href="/logout" class="nav-link">登出</a>
             </div>
         </div>
     </nav>
@@ -451,22 +451,22 @@
     <div class="container">
         <!-- 页头 -->
         <div class="page-header">
-            <h1>🎫 我的工单</h1>
-            <p>查看您在所有服务器中创建的工单记录</p>
+            <h1>🎫 我的客服單</h1>
+            <p>查看您在所有伺服器中創建的客服單記錄</p>
         </div>
 
         <!-- 统计 -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card open">
-                <div class="stat-label">开启中</div>
+                <div class="stat-label">開啟中</div>
                 <div class="stat-value" id="openCount">-</div>
             </div>
             <div class="stat-card closed">
-                <div class="stat-label">已关闭</div>
+                <div class="stat-label">已關閉</div>
                 <div class="stat-value" id="closedCount">-</div>
             </div>
             <div class="stat-card total">
-                <div class="stat-label">总计</div>
+                <div class="stat-label">總計</div>
                 <div class="stat-value" id="totalCount">-</div>
             </div>
         </div>
@@ -474,32 +474,32 @@
         <!-- 过滤器 -->
         <div class="filters">
             <div class="filter-group">
-                <label>状态：</label>
+                <label>狀態：</label>
                 <select id="statusFilter" onchange="filterTickets()">
                     <option value="all">全部</option>
-                    <option value="open">开启中</option>
-                    <option value="closed">已关闭</option>
+                    <option value="open">開啟中</option>
+                    <option value="closed">已關閉</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>服务器：</label>
+                <label>伺服器：</label>
                 <select id="serverFilter" onchange="filterTickets()">
-                    <option value="all">全部服务器</option>
+                    <option value="all">全部伺服器</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>搜索：</label>
-                <input type="text" id="searchInput" placeholder="搜索工单 ID..." onkeyup="filterTickets()">
+                <label>搜尋：</label>
+                <input type="text" id="searchInput" placeholder="搜尋客服單 ID..." onkeyup="filterTickets()">
             </div>
         </div>
 
         <!-- 客服单列表 -->
         <div class="tickets-container">
-            <div class="tickets-header">工单记录</div>
+            <div class="tickets-header">客服單記錄</div>
             <div id="ticketsList">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <div>加载工单数据中...</div>
+                    <div>載入客服單資料中...</div>
                 </div>
             </div>
         </div>
@@ -509,7 +509,7 @@
     <div id="transcriptModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📝 工单聊天记录</h2>
+                <h2>📝 客服單聊天記錄</h2>
                 <span class="close" onclick="closeTranscript()">&times;</span>
             </div>
             <div class="modal-body">
@@ -533,7 +533,7 @@
                 }
                 
                 if (!response.ok) {
-                    throw new Error('加载失败');
+                    throw new Error('載入失敗');
                 }
 
                 const data = await response.json();
@@ -550,11 +550,11 @@
                 filterTickets();
                 
             } catch (error) {
-                console.error('加载工单失败:', error);
+                console.error('載入客服單失敗:', error);
                 document.getElementById('ticketsList').innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">⚠️</div>
-                        <div class="empty-state-text">加载失败</div>
+                        <div class="empty-state-text">載入失敗</div>
                         <div class="empty-state-subtext">${error.message}</div>
                     </div>
                 `;
@@ -566,8 +566,8 @@
             const serverFilter = document.getElementById('serverFilter');
             const servers = Object.entries(serverMap);
             
-            // 保留"全部服务器"选项
-            serverFilter.innerHTML = '<option value="all">全部服务器</option>';
+            // 保留"全部伺服器"选项
+            serverFilter.innerHTML = '<option value="all">全部伺服器</option>';
             
             servers.forEach(([guildId, serverName]) => {
                 const option = document.createElement('option');
@@ -625,8 +625,8 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
-                        <div class="empty-state-text">没有找到工单</div>
-                        <div class="empty-state-subtext">您还没有创建任何工单，或符合条件的工单不存在</div>
+                        <div class="empty-state-text">沒有找到客服單</div>
+                        <div class="empty-state-subtext">您還沒有創建任何客服單，或符合條件的客服單不存在</div>
                     </div>
                 `;
                 return;
@@ -637,11 +637,11 @@
 
             let html = '';
             tickets.forEach(ticket => {
-                const serverName = serverMap[ticket.guild_id] || '未知服务器';
+                const serverName = serverMap[ticket.guild_id] || '未知伺服器';
                 const createdDate = new Date(ticket.created_at).toLocaleString('zh-TW');
                 const closedDate = ticket.closed_at ? new Date(ticket.closed_at).toLocaleString('zh-TW') : '-';
                 const statusClass = ticket.status === 'open' ? 'open' : 'closed';
-                const statusText = ticket.status === 'open' ? '开启中' : '已关闭';
+                const statusText = ticket.status === 'open' ? '開啟中' : '已關閉';
                 const closeReasonHtml = ticket.closed_reason ? `
                             <div class="info-item">
                                 <div class="info-label">關閉原因</div>
@@ -699,18 +699,18 @@
             try {
                 // 显示模态框
                 modal.style.display = 'block';
-                iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #888;">加载中...</div>';
+                iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #888;">載入中...</div>';
                 
                 // 獲取HTML內容
                 const response = await fetch(`/api/tickets/${guildId}/${ticketId}/transcript`);
                 
                 if (response.status === 404) {
-                    iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">找不到聊天记录</div>';
+                    iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">找不到聊天記錄</div>';
                     return;
                 }
                 
                 if (response.status === 403) {
-                    iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">无权查看此工单</div>';
+                    iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">無權查看此客服單</div>';
                     return;
                 }
                 
@@ -723,7 +723,7 @@
                 
             } catch (error) {
                 console.error('獲取聊天記錄失敗:', error);
-                iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">获取失败，请稍后再试</div>';
+                iframe.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #dc2626;">獲取失敗，請稍後再試</div>';
             }
         }
 
@@ -735,23 +735,23 @@
 
         // 關閉客服單
         async function closeTicketFromUser(guildId, ticketId) {
-            const reason = prompt('请输入关闭原因（可选）：');
+            const reason = prompt('請輸入關閉原因（可選）：');
             if (reason === null) return; // 用户取消
             
-            if (!confirm('确定要关闭此工单吗？')) return;
+            if (!confirm('確定要關閉此客服單嗎？')) return;
             
             try {
                 const response = await fetch(`/api/tickets/${guildId}/${ticketId}/close`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reason: reason || '用户关闭' })
+                    body: JSON.stringify({ reason: reason || '用戶關閉' })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert('✅ 工单已关闭！');
-                    loadMyTickets(); // 重新加载工单列表
+                    alert('✅ 客服單已關閉！');
+                    loadMyTickets(); // 重新載入客服單列表
                 } else {
                     alert('❌ ' + (data.message || '關閉失敗'));
                 }
