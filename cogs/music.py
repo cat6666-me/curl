@@ -33,9 +33,6 @@ class Music(commands.Cog):
         }
 
     async def cog_load(self):
-        if not hasattr(self.bot, 'wavelink'):
-            self.bot.wavelink = wavelink.Client(self.bot)
-
         self.bot.loop.create_task(self.start_lavalink_node())
 
     async def start_lavalink_node(self):
@@ -44,7 +41,10 @@ class Music(commands.Cog):
             return
 
         try:
-            await wavelink.NodePool.create_node(bot=self.bot, **self.node_params)
+            protocol = 'https' if self.node_params['secure'] else 'http'
+            uri = f"{protocol}://{self.node_params['host']}:{self.node_params['port']}"
+            node = wavelink.Node(uri=uri, password=self.node_params['password'], client=self.bot)
+            await wavelink.Pool.connect(client=self.bot, nodes=[node])
             self.node_ready = True
             print(f"✅ Lavalink 節點已連線：{self.node_params['host']}:{self.node_params['port']}")
         except Exception as exc:
@@ -54,7 +54,7 @@ class Music(commands.Cog):
         if not self.node_ready:
             return None
         try:
-            return wavelink.NodePool.get_node()
+            return wavelink.Pool.get_node()
         except Exception:
             return None
 
@@ -64,13 +64,23 @@ class Music(commands.Cog):
 
         try:
             query = query.strip()
-            track = await wavelink.YouTubeTrack.search(query, return_first=True)
-            return track
+            tracks = await wavelink.Playable.search(query)
+            if not tracks:
+                return None
+
+            if isinstance(tracks, wavelink.Playlist):
+                return tracks
+
+            return tracks[0]
         except Exception:
             return None
 
     async def ensure_player(self, voice_channel: discord.VoiceChannel):
-        player = self.bot.wavelink.get_player(voice_channel.guild.id)
+        node = self.get_node()
+        player = None
+        if node is not None:
+            player = node.get_player(voice_channel.guild.id)
+
         if player is None or not player.is_connected():
             player = await voice_channel.connect(cls=wavelink.Player)
         return player
@@ -131,10 +141,19 @@ class Music(commands.Cog):
         embed.set_footer(text="/音樂 暫停 / 繼續 / 跳過 / 停止")
         await interaction.followup.send(embed=embed)
 
+    def get_player(self, guild_id: int):
+        node = self.get_node()
+        if node is None:
+            return None
+        try:
+            return node.get_player(guild_id)
+        except Exception:
+            return None
+
     @music_group.command(name="暫停", description="暫停目前播放的音樂")
     async def pause(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected():
             return await self.send_error(interaction, "❌ 目前沒有連接的音樂播放器。")
 
@@ -147,7 +166,7 @@ class Music(commands.Cog):
     @music_group.command(name="繼續", description="繼續播放已暫停的音樂")
     async def resume(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected():
             return await self.send_error(interaction, "❌ 目前沒有連接的音樂播放器。")
 
@@ -160,7 +179,7 @@ class Music(commands.Cog):
     @music_group.command(name="跳過", description="跳過目前播放的音樂")
     async def skip(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected():
             return await self.send_error(interaction, "❌ 目前沒有連接的音樂播放器。")
 
@@ -176,7 +195,7 @@ class Music(commands.Cog):
     @music_group.command(name="停止", description="停止播放並清空音樂隊列")
     async def stop(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected():
             return await self.send_error(interaction, "❌ 目前沒有連接的音樂播放器。")
 
@@ -191,7 +210,7 @@ class Music(commands.Cog):
         if level < 1 or level > 200:
             return await self.send_error(interaction, "❌ 音量必須介於 1 到 200 之間。")
 
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected():
             return await self.send_error(interaction, "❌ 目前沒有連接的音樂播放器。")
 
@@ -201,7 +220,7 @@ class Music(commands.Cog):
     @music_group.command(name="現在播放", description="顯示目前正在播放的曲目")
     async def now_playing(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        player = self.bot.wavelink.get_player(interaction.guild.id)
+        player = self.get_player(interaction.guild.id)
         if player is None or not player.is_connected() or not player.current:
             return await self.send_error(interaction, "❌ 目前沒有正在播放的音樂。")
 
