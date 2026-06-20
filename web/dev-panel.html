@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>开发者面板 - Discord 机器人</title>
+    <title>開發者面板 - Discord 機器人</title>
     <style>
         * {
             margin: 0;
@@ -496,21 +496,21 @@
 <body>
     <nav class="navbar">
         <div class="navbar-brand">
-            <span>🛠️ 开发者面板</span>
-            <span class="dev-badge">DEVELOPER</span>
+            <span>🛠️ 開發者面板</span>
+            <span class="dev-badge">開發者</span>
         </div>
         <div class="navbar-user">
             <a href="/select-server" class="back-btn">← 返回控制台</a>
             <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
             <span class="user-name">{USERNAME}</span>
-            <a href="/logout" class="logout-btn">退出登录</a>
+            <a href="/logout" class="logout-btn">登出</a>
         </div>
     </nav>
 
     <div class="container">
         <div class="header">
-            <h1>🔧 开发者控制面板</h1>
-            <p>管理所有机器人服务器的配置和数据</p>
+            <h1>🔧 開發者控制面板</h1>
+            <p>管理所有機器人伺服器的設定與資料</p>
         </div>
 
         <div class="stats-grid" id="statsGrid">
@@ -549,7 +549,7 @@
 
         async function loadGuilds() {
             try {
-                console.log('开始加载服务器列表...');
+                console.log('開始載入伺服器列表...');
                 const response = await fetch('/api/dev/all-guilds');
                 console.log('響應狀態:', response.status);
                 console.log('響應類型:', response.headers.get('content-type'));
@@ -624,7 +624,7 @@
                 ? `<img src="${guild.icon}" alt="${guild.name}">` 
                 : guild.name.charAt(0).toUpperCase();
 
-            const createdDate = new Date(guild.created_at).toLocaleDateString('zh-CN');
+                const createdDate = new Date(guild.created_at).toLocaleDateString('zh-TW');
 
             return `
                 <div class="guild-card" data-guild-id="${guild.id}">
@@ -752,8 +752,8 @@
                             <span class="detail-value">${guild.owner} (${guild.owner_id})</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">创建时间</span>
-                            <span class="detail-value">${new Date(guild.created_at).toLocaleString('zh-CN')}</span>
+                            <span class="detail-label">創建時間</span>
+                            <span class="detail-value">${new Date(guild.created_at).toLocaleString('zh-TW')}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Nitro 等级</span>
