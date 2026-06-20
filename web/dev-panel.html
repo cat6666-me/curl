@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>開發者面板 - Discord 機器人</title>
+    <title>开发者面板 - Discord 机器人</title>
     <style>
         * {
             margin: 0;
@@ -496,50 +496,50 @@
 <body>
     <nav class="navbar">
         <div class="navbar-brand">
-            <span>🛠️ 開發者面板</span>
+            <span>🛠️ 开发者面板</span>
             <span class="dev-badge">DEVELOPER</span>
         </div>
         <div class="navbar-user">
             <a href="/select-server" class="back-btn">← 返回控制台</a>
             <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
             <span class="user-name">{USERNAME}</span>
-            <a href="/logout" class="logout-btn">登出</a>
+            <a href="/logout" class="logout-btn">退出登录</a>
         </div>
     </nav>
 
     <div class="container">
         <div class="header">
-            <h1>🔧 開發者控制面板</h1>
-            <p>管理所有機器人伺服器的配置和數據</p>
+            <h1>🔧 开发者控制面板</h1>
+            <p>管理所有机器人服务器的配置和数据</p>
         </div>
 
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
-                <h3>總伺服器數</h3>
+                <h3>总服务器数</h3>
                 <div class="value" id="totalGuilds">-</div>
             </div>
             <div class="stat-card success">
-                <h3>總成員數</h3>
+                <h3>总成员数</h3>
                 <div class="value" id="totalMembers">-</div>
             </div>
             <div class="stat-card warning">
-                <h3>在線成員</h3>
+                <h3>在线成员</h3>
                 <div class="value" id="onlineMembers">-</div>
             </div>
             <div class="stat-card danger">
-                <h3>總頻道數</h3>
+                <h3>总频道数</h3>
                 <div class="value" id="totalChannels">-</div>
             </div>
         </div>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 搜尋伺服器名稱或 ID...">
+            <input type="text" id="searchInput" placeholder="🔍 搜索服务器名称或 ID...">
         </div>
 
         <div id="guildsContainer">
             <div class="loading">
                 <div class="loading-spinner"></div>
-                <p>載入伺服器資料中...</p>
+                <p>加载服务器数据中...</p>
             </div>
         </div>
     </div>
@@ -549,23 +549,23 @@
 
         async function loadGuilds() {
             try {
-                console.log('開始載入伺服器列表...');
+                console.log('开始加载服务器列表...');
                 const response = await fetch('/api/dev/all-guilds');
                 console.log('響應狀態:', response.status);
                 console.log('響應類型:', response.headers.get('content-type'));
                 
-                // 先讀取文本，以便在解析失敗時查看
+                // 先读取文本，以便在解析失败时查看
                 const text = await response.text();
-                console.log('響應文本:', text.substring(0, 200)); // 只顯示前200字符
+                console.log('响应文本:', text.substring(0, 200)); // 只显示前200字符
                 
-                // 嘗試解析 JSON
+                // 尝试解析 JSON
                 let data;
                 try {
                     data = JSON.parse(text);
                 } catch (parseError) {
-                    console.error('JSON 解析失敗:', parseError);
-                    console.error('完整響應文本:', text);
-                    throw new Error(`JSON 解析失敗: ${parseError.message}`);
+                    console.error('JSON 解析失败:', parseError);
+                    console.error('完整响应文本:', text);
+                    throw new Error(`JSON 解析失败: ${parseError.message}`);
                 }
 
                 if (data.error) {
@@ -573,16 +573,16 @@
                 }
 
                 allGuilds = data.guilds;
-                console.log('成功載入', allGuilds.length, '個伺服器');
+                console.log('成功加载', allGuilds.length, '个服务器');
                 updateStats();
                 displayGuilds(allGuilds);
             } catch (error) {
-                console.error('載入失敗:', error);
+                console.error('加载失败:', error);
                 document.getElementById('guildsContainer').innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">⚠️</div>
-                        <p>載入失敗: ${error.message}</p>
-                        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">請檢查瀏覽器控制台查看詳細錯誤</p>
+                        <p>加载失败: ${error.message}</p>
+                        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">请检查浏览器控制台查看详细错误</p>
                     </div>
                 `;
             }
@@ -606,7 +606,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🔍</div>
-                        <p>找不到符合的伺服器</p>
+                        <p>找不到符合的服务器</p>
                     </div>
                 `;
                 return;
@@ -624,7 +624,7 @@
                 ? `<img src="${guild.icon}" alt="${guild.name}">` 
                 : guild.name.charAt(0).toUpperCase();
 
-            const createdDate = new Date(guild.created_at).toLocaleDateString('zh-TW');
+            const createdDate = new Date(guild.created_at).toLocaleDateString('zh-CN');
 
             return `
                 <div class="guild-card" data-guild-id="${guild.id}">
@@ -637,35 +637,35 @@
                     </div>
                     <div class="guild-stats">
                         <div class="guild-stat">
-                            <span class="guild-stat-label">成員</span>
+                            <span class="guild-stat-label">成员</span>
                             <span class="guild-stat-value">${guild.member_count}</span>
                         </div>
                         <div class="guild-stat">
-                            <span class="guild-stat-label">在線</span>
+                            <span class="guild-stat-label">在线</span>
                             <span class="guild-stat-value">${guild.online_count}</span>
                         </div>
                         <div class="guild-stat">
-                            <span class="guild-stat-label">文字頻道</span>
+                            <span class="guild-stat-label">文字频道</span>
                             <span class="guild-stat-value">${guild.text_channels}</span>
                         </div>
                         <div class="guild-stat">
-                            <span class="guild-stat-label">語音頻道</span>
+                            <span class="guild-stat-label">语音频道</span>
                             <span class="guild-stat-value">${guild.voice_channels}</span>
                         </div>
                         <div class="guild-stat">
-                            <span class="guild-stat-label">身分組</span>
+                            <span class="guild-stat-label">身份组</span>
                             <span class="guild-stat-value">${guild.roles}</span>
                         </div>
                     </div>
                     <div class="guild-actions">
-                        <button class="primary" onclick="toggleDetails('${guild.id}')">查看詳細配置</button>
-                        <button onclick="loadMembers('${guild.id}')">查看成員</button>
-                        <button onclick="window.open('/dashboard/${guild.id}', '_blank')">打開控制台</button>
+                        <button class="primary" onclick="toggleDetails('${guild.id}')">查看详细配置</button>
+                        <button onclick="loadMembers('${guild.id}')">查看成员</button>
+                        <button onclick="window.open('/dashboard/${guild.id}', '_blank')">打开控制台</button>
                     </div>
                     <div class="guild-details" id="details-${guild.id}">
                         <div class="loading">
                             <div class="loading-spinner"></div>
-                            <p>載入配置中...</p>
+                            <p>加载配置中...</p>
                         </div>
                     </div>
                 </div>
@@ -745,22 +745,22 @@
 
             detailsDiv.innerHTML = `
                 <div class="details-section">
-                    <h4>📊 伺服器資訊</h4>
+                    <h4>📊 服务器信息</h4>
                     <div class="details-content">
                         <div class="detail-row">
-                            <span class="detail-label">擁有者</span>
+                            <span class="detail-label">拥有者</span>
                             <span class="detail-value">${guild.owner} (${guild.owner_id})</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">創建時間</span>
-                            <span class="detail-value">${new Date(guild.created_at).toLocaleString('zh-TW')}</span>
+                            <span class="detail-label">创建时间</span>
+                            <span class="detail-value">${new Date(guild.created_at).toLocaleString('zh-CN')}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Nitro 等級</span>
+                            <span class="detail-label">Nitro 等级</span>
                             <span class="detail-value">Tier ${guild.premium_tier} (${guild.premium_subscription_count} Boosts)</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">驗證等級</span>
+                            <span class="detail-label">验证等级</span>
                             <span class="detail-value">${guild.verification_level}</span>
                         </div>
                         ${guild.description ? `
@@ -773,14 +773,14 @@
                 </div>
 
                 <div class="details-section">
-                    <h4>⚙️ 已配置的模組 (${configKeys.length})</h4>
+                    <h4>⚙️ 已配置的模块 (${configKeys.length})</h4>
                     <div class="config-list">
                         ${configItems || '<div class="config-item">無配置文件</div>'}
                     </div>
                 </div>
 
                 <div class="details-section">
-                    <h4>📝 配置文件內容</h4>
+                    <h4>📝 配置文件内容</h4>
                     <div class="json-viewer">
                         <pre>${JSON.stringify(configs, null, 2)}</pre>
                     </div>
@@ -853,7 +853,7 @@
 
             const memberItems = data.members.map(member => {
                 const statusClass = member.status.toLowerCase();
-                const rolesText = member.roles.length > 0 ? member.roles.join(', ') : '無身分組';
+                const rolesText = member.roles.length > 0 ? member.roles.join(', ') : '无身份组';
 
                 return `
                     <div class="member-item">
@@ -869,7 +869,7 @@
 
             detailsDiv.innerHTML = `
                 <div class="details-section">
-                    <h4>👥 成員列表 (顯示 ${data.shown} / ${data.total})</h4>
+                    <h4>👥 成员列表 (显示 ${data.shown} / ${data.total})</h4>
                     <div class="member-list">
                         ${memberItems}
                     </div>
@@ -877,7 +877,7 @@
             `;
         }
 
-        // 搜尋功能
+        // 搜索功能
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const filtered = allGuilds.filter(guild => 
@@ -887,7 +887,7 @@
             displayGuilds(filtered);
         });
 
-        // 頁面載入時獲取資料
+        // 页面加载时获取资料
         loadGuilds();
     </script>
 </body>

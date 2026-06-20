@@ -1,7 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import json
 import os
 from datetime import datetime
 import asyncio
@@ -11,19 +10,12 @@ class Tickets(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+        self.storage = bot.storage
         self.tickets = {}  # {guild_id: ticket_data}
-        
-    def get_data_path(self, guild_id):
-        """獲取數據文件路徑"""
-        return f'./data/{guild_id}/tickets.json'
     
     def load_data(self, guild_id):
         """載入客服單數據"""
-        path = self.get_data_path(guild_id)
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {
+        return self.storage.load_guild_data(guild_id, 'tickets', default={
             'enabled': False,
             'category_id': None,
             'support_role_id': None,
@@ -32,14 +24,11 @@ class Tickets(commands.Cog):
             'panel_message_id': None,
             'tickets': {},
             'ticket_count': 0
-        }
+        })
     
     def save_data(self, guild_id, data):
         """保存客服單數據"""
-        path = self.get_data_path(guild_id)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        self.storage.save_guild_data(guild_id, 'tickets', data)
     
     def get_transcript_path(self, guild_id, ticket_id, channel_name):
         """獲取聊天記錄HTML文件路徑"""

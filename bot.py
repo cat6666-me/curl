@@ -3,9 +3,9 @@ from discord.ext import commands
 import os
 import asyncio
 import sys
-import json
 from datetime import datetime
 from dotenv import load_dotenv
+from storage import JsonDatabaseStore
 from web.server import WebServer
 
 # 載入環境變數
@@ -17,6 +17,7 @@ WEB_PORT = int(os.getenv('WEB_PORT', 8080))  # 網頁端口，預設8080
 BOT_STATUS_TYPE = os.getenv('BOT_STATUS_TYPE', 'playing')  # playing, watching, listening, streaming, competing
 BOT_STATUS_TEXT = os.getenv('BOT_STATUS_TEXT', '/help 查看指令')
 BOT_STATUS_URL = os.getenv('BOT_STATUS_URL', '')  # 僅用於 streaming 類型
+BOT_STATUS_REFRESH_SECONDS = int(os.getenv('BOT_STATUS_REFRESH_SECONDS', 300))
 
 # 讀取版本號
 def get_version():
@@ -65,55 +66,77 @@ class MyBot(commands.Bot):
             intents=intents,
             help_command=None
         )
+
+        self.storage = JsonDatabaseStore()
         
         # 初始化網頁伺服器
         self.web_server = WebServer(self, port=WEB_PORT)
+        self.status_update_task = None
         
         # 設置全局交互檢查
         self.tree.interaction_check = self.global_interaction_check
+
+    def get_total_users(self) -> int:
+        """取得所有伺服器的總使用者數"""
+        total = 0
+        for guild in self.guilds:
+            if guild.member_count is not None:
+                total += guild.member_count
+            else:
+                total += len(guild.members)
+        return total
+
+    def render_status_text(self) -> str:
+        """將狀態模板中的變數替換為即時數值"""
+        return (
+            BOT_STATUS_TEXT
+            .replace('{users}', str(self.get_total_users()))
+            .replace('{guilds}', str(len(self.guilds)))
+        )
     
     async def global_interaction_check(self, interaction: discord.Interaction) -> bool:
         """全局交互檢查 - 攔截被封鎖用戶的命令"""
         # 檢查用戶是否被封鎖
-        blocked_file = './data/blocked_users.json'
-        if os.path.exists(blocked_file):
-            try:
-                with open(blocked_file, 'r', encoding='utf-8') as f:
-                    blocked = json.load(f)
-                
-                if str(interaction.user.id) in blocked:
-                    # 用戶被封鎖，禁止執行命令
-                    embed = discord.Embed(
-                        title="🚫 您已被封鎖",
-                        description="您已被機器人管理員封鎖，無法使用任何功能。",
-                        color=discord.Color.red()
-                    )
-                    
-                    block_info = blocked[str(interaction.user.id)]
-                    embed.add_field(
-                        name="封鎖原因",
-                        value=block_info.get('reason', '未提供'),
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="封鎖時間",
-                        value=f"<t:{int(datetime.fromisoformat(block_info.get('blocked_at', datetime.now().isoformat())).timestamp())}:F>",
-                        inline=False
-                    )
-                    
-                    embed.set_footer(text="如有疑問，請聯繫機器人管理員")
-                    
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return False
-            except Exception as e:
-                print(f"檢查封鎖列表時發生錯誤: {e}")
+        try:
+            blocked = self.storage.load_global_data(
+                'blocked_users',
+                default={},
+                legacy_filename='blocked_users.json'
+            )
+
+            if str(interaction.user.id) in blocked:
+                # 用戶被封鎖，禁止執行命令
+                embed = discord.Embed(
+                    title="🚫 您已被封鎖",
+                    description="您已被機器人管理員封鎖，無法使用任何功能。",
+                    color=discord.Color.red()
+                )
+
+                block_info = blocked[str(interaction.user.id)]
+                embed.add_field(
+                    name="封鎖原因",
+                    value=block_info.get('reason', '未提供'),
+                    inline=False
+                )
+                embed.add_field(
+                    name="封鎖時間",
+                    value=f"<t:{int(datetime.fromisoformat(block_info.get('blocked_at', datetime.now().isoformat())).timestamp())}:F>",
+                    inline=False
+                )
+
+                embed.set_footer(text="如有疑問，請聯繫機器人管理員")
+
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return False
+        except Exception as e:
+            print(f"檢查封鎖列表時發生錯誤: {e}")
         
         return True
     
     async def set_bot_status(self):
         """設定機器人狀態"""
         status_type = BOT_STATUS_TYPE.lower()
-        status_text = BOT_STATUS_TEXT
+        status_text = self.render_status_text()
         
         try:
             if status_type == 'playing':
@@ -134,6 +157,15 @@ class MyBot(commands.Bot):
             print(f"\n✅ 已設定機器人狀態: {status_type.title()} - {status_text}")
         except Exception as e:
             print(f"\n⚠️  設定機器人狀態失敗: {e}")
+
+    async def status_update_loop(self):
+        """定時刷新機器人狀態，保持統計數據為最新"""
+        while not self.is_closed():
+            try:
+                await self.set_bot_status()
+            except Exception as e:
+                print(f"⚠️  狀態刷新失敗: {e}")
+            await asyncio.sleep(max(30, BOT_STATUS_REFRESH_SECONDS))
     
     async def setup_hook(self):
         print("\n📦 正在初始化系統...")
@@ -168,18 +200,24 @@ class MyBot(commands.Bot):
         print("╔══════════════════════════════════════════════════════════════╗")
         print("║                    🤖 機器人已成功啟動                       ║")
         print("╚══════════════════════════════════════════════════════════════╝")
+
+        for guild in self.guilds:
+            self.storage.ensure_guild_database(guild.id)
         
         # 設定機器人狀態
         await self.set_bot_status()
+
+        if self.status_update_task is None or self.status_update_task.done():
+            self.status_update_task = self.loop.create_task(self.status_update_loop())
         
         print("\n📊 機器人資訊:")
         print(f"   • 名稱:     {self.user.name}")
         print(f"   • ID:       {self.user.id}")
         print(f"   • 伺服器:   {len(self.guilds)} 個")
-        print(f"   • 用戶數:   {sum(g.member_count for g in self.guilds):,} 位")
+        print(f"   • 用戶數:   {self.get_total_users():,} 位")
         print(f"   • 延遲:     {round(self.latency * 1000)}ms")
         print(f"   • 網頁:     http://localhost:{WEB_PORT}")
-        print(f"   • 狀態:     {BOT_STATUS_TYPE.title()} - {BOT_STATUS_TEXT}")
+        print(f"   • 狀態:     {BOT_STATUS_TYPE.title()} - {self.render_status_text()}")
         
         print("\n" + "═" * 62)
         print("💬 終端命令:")
@@ -193,6 +231,10 @@ class MyBot(commands.Bot):
         print("   • 使用 /help 查看所有指令")
         print(f"   • 訪問網頁控制台：http://localhost:{WEB_PORT}")
         print("   • 在終端輸入 help 查看管理命令\n")
+
+    async def on_guild_join(self, guild: discord.Guild):
+        db_path = self.storage.ensure_guild_database(guild.id)
+        print(f"🗄️ 已為新伺服器建立資料庫: {guild.name} ({guild.id}) -> {db_path}")
     
     async def handle_terminal_input(self):
         """處理終端輸入命令"""

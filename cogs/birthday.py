@@ -1,8 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-import json
-import os
 from datetime import datetime
 
 class Birthday(commands.Cog):
@@ -10,53 +8,34 @@ class Birthday(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.data_dir = "data"
+        self.storage = bot.storage
         self.birthdays = {}
         self.settings = {}
-        os.makedirs(self.data_dir, exist_ok=True)
         self.check_birthdays.start()
     
     def cog_unload(self):
         """停止背景任務"""
         self.check_birthdays.cancel()
     
-    def get_data_file(self, guild_id: str, file_type: str):
-        """獲取伺服器數據檔案路徑"""
-        guild_dir = os.path.join(self.data_dir, guild_id)
-        os.makedirs(guild_dir, exist_ok=True)
-        return os.path.join(guild_dir, f"{file_type}.json")
-    
     def load_birthdays(self, guild_id: str):
         """載入生日數據"""
-        data_file = self.get_data_file(guild_id, "birthdays")
-        if os.path.exists(data_file):
-            with open(data_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {}
+        return self.storage.load_guild_data(guild_id, "birthdays", default={})
     
     def save_birthdays(self, guild_id: str):
         """保存生日數據"""
-        data_file = self.get_data_file(guild_id, "birthdays")
-        with open(data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.birthdays.get(guild_id, {}), f, indent=2, ensure_ascii=False)
+        self.storage.save_guild_data(guild_id, "birthdays", self.birthdays.get(guild_id, {}))
     
     def load_settings(self, guild_id: str):
         """載入設定"""
-        data_file = self.get_data_file(guild_id, "birthday_settings")
-        if os.path.exists(data_file):
-            with open(data_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {
+        return self.storage.load_guild_data(guild_id, "birthday_settings", default={
             "enabled": False,
             "channel_id": None,
             "message": "🎂 今天是 {user} 的生日！祝生日快樂！🎉"
-        }
+        })
     
     def save_settings(self, guild_id: str):
         """保存設定"""
-        data_file = self.get_data_file(guild_id, "birthday_settings")
-        with open(data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.settings.get(guild_id, {}), f, indent=2, ensure_ascii=False)
+        self.storage.save_guild_data(guild_id, "birthday_settings", self.settings.get(guild_id, {}))
     
     def get_birthdays(self, guild_id: str):
         """獲取生日數據"""

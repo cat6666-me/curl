@@ -1,8 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import os
-import json
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -11,39 +9,24 @@ class Statistics(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+        self.storage = bot.storage
         self.message_cache = defaultdict(list)  # 臨時緩存，用於活躍度分析
-    
-    def get_stats_file(self, guild_id: int):
-        """獲取統計文件路徑"""
-        guild_id_str = str(guild_id)
-        data_dir = os.path.join('data', guild_id_str)
-        os.makedirs(data_dir, exist_ok=True)
-        return os.path.join(data_dir, 'statistics.json')
     
     def load_stats(self, guild_id: int):
         """載入統計數據"""
-        file_path = self.get_stats_file(guild_id)
-        
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        
-        return {
+        return self.storage.load_guild_data(guild_id, 'statistics', default={
             'total_messages': 0,
             'daily_messages': {},
             'channel_stats': {},
             'user_stats': {},
             'hourly_activity': {str(i): 0 for i in range(24)},
             'last_updated': datetime.now().isoformat()
-        }
+        })
     
     def save_stats(self, guild_id: int, data: dict):
         """儲存統計數據"""
-        file_path = self.get_stats_file(guild_id)
         data['last_updated'] = datetime.now().isoformat()
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        self.storage.save_guild_data(guild_id, 'statistics', data)
     
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

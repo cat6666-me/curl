@@ -1,37 +1,22 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import json
-import os
 
 class ReactionRoles(commands.Cog):
     """反應角色系統"""
     
     def __init__(self, bot):
         self.bot = bot
-        self.data_dir = "data"
+        self.storage = bot.storage
         self.reaction_roles = {}
-        os.makedirs(self.data_dir, exist_ok=True)
-    
-    def get_data_file(self, guild_id: str):
-        """獲取伺服器數據檔案路徑"""
-        guild_dir = os.path.join(self.data_dir, guild_id)
-        os.makedirs(guild_dir, exist_ok=True)
-        return os.path.join(guild_dir, "reaction_roles.json")
     
     def load_data(self, guild_id: str):
         """載入反應角色數據"""
-        data_file = self.get_data_file(guild_id)
-        if os.path.exists(data_file):
-            with open(data_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {}
+        return self.storage.load_guild_data(guild_id, "reaction_roles", default={})
     
     def save_data(self, guild_id: str):
         """保存反應角色數據"""
-        data_file = self.get_data_file(guild_id)
-        with open(data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.reaction_roles.get(guild_id, {}), f, indent=2, ensure_ascii=False)
+        self.storage.save_guild_data(guild_id, "reaction_roles", self.reaction_roles.get(guild_id, {}))
     
     def get_reaction_roles(self, guild_id: str):
         """獲取反應角色數據"""

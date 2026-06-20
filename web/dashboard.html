@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 機器人控制台</title>
+    <title>Discord 机器人控制台</title>
     <style>
         * {
             margin: 0;
@@ -340,7 +340,7 @@
             }
         }
 
-        /* 移動端響應式樣式 */
+        /* 移动端响应式样式 */
         @media (max-width: 768px) {
             .hamburger {
                 display: flex;
@@ -420,7 +420,7 @@
 </head>
 <body>
     <div class="navbar">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="切換菜單">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="切换菜单">
             <span></span>
             <span></span>
             <span></span>
@@ -430,11 +430,11 @@
             <span style="margin-left: 1rem; color: #888; font-size: 0.9rem;">/ {GUILD_NAME}</span>
         </div>
         <div class="navbar-user">
-            <a href="/my-tickets" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">🎫 我的客服單</a>
-            <a href="/select-server" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">← 返回伺服器列表</a>
+            <a href="/my-tickets" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">🎫 我的工单</a>
+            <a href="/select-server" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">← 返回服务器列表</a>
             <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
             <span class="user-name">{USERNAME}</span>
-            <a href="/logout" class="logout-btn">登出</a>
+            <a href="/logout" class="logout-btn">退出登录</a>
         </div>
     </div>
 
@@ -442,27 +442,27 @@
 
     <div class="main-layout">
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-section">數據總覽</div>
+            <div class="sidebar-section">数据总览</div>
             <div class="sidebar-item active" onclick="showSection('dashboard')">
-                儀表板
+                仪表板
             </div>
             <div class="sidebar-item" onclick="showSection('levels')">
-                等級系統
+                等级系统
             </div>
             <div class="sidebar-item" onclick="showSection('daily')">
-                簽到系統
+                签到系统
             </div>
             <div class="sidebar-item" onclick="showSection('birthdays')">
-                生日系統
+                生日系统
             </div>
             <div class="sidebar-item" onclick="showSection('games')">
-                遊戲系統
+                游戏系统
             </div>
             <div class="sidebar-item" onclick="showSection('statistics')">
-                活躍度分析
+                活跃度分析
             </div>
             
-            <div class="sidebar-section">系統管理</div>
+            <div class="sidebar-section">系统管理</div>
             <div class="sidebar-item" onclick="showSection('warnings')">
                 警告管理
             </div>
@@ -470,27 +470,27 @@
                 成就管理
             </div>
             <div class="sidebar-item" onclick="showSection('tickets')">
-                客服單管理
+                工单管理
             </div>
             <div class="sidebar-item" onclick="showSection('custom-commands')">
-                自定義命令
+                自定义命令
             </div>
             
-            <div class="sidebar-section">系統設定</div>
+            <div class="sidebar-section">系统设置</div>
             <div class="sidebar-item" onclick="showSection('welcome')">
-                歡迎系統
+                欢迎系统
             </div>
             <div class="sidebar-item" onclick="showSection('temp-voice')">
-                臨時語音
+                临时语音
             </div>
             <div class="sidebar-item" onclick="showSection('auto-reply')">
-                自動回覆
+                自动回复
             </div>
             <div class="sidebar-item" onclick="showSection('security')">
-                安全系統
+                安全系统
             </div>
             <div class="sidebar-item" onclick="showSection('scheduled-messages')">
-                定時消息
+                定时消息
             </div>
         </div>
 
@@ -498,109 +498,109 @@
             <div id="section-dashboard" class="content-section">
                 <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">成員數量</div>
+                <div class="stat-label">成员数量</div>
                 <div class="stat-value" id="member-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">頻道數量</div>
+                <div class="stat-label">频道数量</div>
                 <div class="stat-value" id="channel-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">身分組數量</div>
+                <div class="stat-label">身份组数量</div>
                 <div class="stat-value" id="role-count">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">文字頻道</div>
+                <div class="stat-label">文字频道</div>
                 <div class="stat-value" id="text-channels">-</div>
             </div>
         </div>
             </div>
 
-            <!-- 等級系統 -->
+            <!-- 等级系统 -->
             <div id="section-levels" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">等級系統數據</h2>
-                    <div id="levels-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">等级系统数据</h2>
+                    <div id="levels-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
-            <!-- 簽到系統 -->
+            <!-- 签到系统 -->
             <div id="section-daily" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">簽到系統數據</h2>
-                    <div id="daily-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">签到系统数据</h2>
+                    <div id="daily-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
-            <!-- 生日系統 -->
+            <!-- 生日系统 -->
             <div id="section-birthdays" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">生日系統數據</h2>
-                    <div id="birthday-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">生日系统数据</h2>
+                    <div id="birthday-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 遊戲系統 -->
             <div id="section-games" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">遊戲系統數據</h2>
-                    <div id="game-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">游戏系统数据</h2>
+                    <div id="game-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
-            <!-- 活躍度分析 -->
+            <!-- 活跃度分析 -->
             <div id="section-statistics" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">伺服器活躍度</h2>
-                    <div id="statistics-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">服务器活跃度</h2>
+                    <div id="statistics-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 警告管理 -->
             <div id="section-warnings" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">警告系統管理</h2>
-                    <div id="warnings-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">警告系统管理</h2>
+                    <div id="warnings-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 成就管理 -->
             <div id="section-achievements" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">成就系統管理</h2>
-                    <div id="achievements-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">成就系统管理</h2>
+                    <div id="achievements-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 自定義命令 -->
             <div id="section-custom-commands" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">自定義命令管理</h2>
-                    <div id="custom-commands-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">自定义命令管理</h2>
+                    <div id="custom-commands-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 歡迎系統 -->
             <div id="section-welcome" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">歡迎系統設定</h2>
-                    <div id="welcome-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">欢迎系统设置</h2>
+                    <div id="welcome-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 臨時語音 -->
             <div id="section-temp-voice" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">臨時語音頻道設定</h2>
-                    <div id="temp-voice-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">临时语音频道设置</h2>
+                    <div id="temp-voice-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
             <!-- 客服單管理 -->
             <div id="section-tickets" class="content-section" style="display: none;">
                 <div class="section">
-                    <h2 class="section-title">客服單系統管理</h2>
-                    <div id="tickets-data" style="color: #888;">載入中...</div>
+                    <h2 class="section-title">工单系统管理</h2>
+                    <div id="tickets-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
@@ -608,7 +608,7 @@
             <div id="section-auto-reply" class="content-section" style="display: none;">
                 <div class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">自動回覆管理</h2>
+                        <h2 class="section-title" style="margin: 0;">自动回复管理</h2>
                         <div style="display: flex; gap: 1rem; align-items: center;">
                             <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
                                 <span id="auto-reply-system-status">系統狀態</span>
@@ -617,11 +617,11 @@
                             </label>
                             <button class="action-btn" onclick="openAddAutoReplyModal()" 
                                     style="background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
-                                ➕ 添加規則
+                                ➕ 添加规则
                             </button>
                         </div>
                     </div>
-                    <div id="auto-reply-data" style="color: #888;">載入中...</div>
+                    <div id="auto-reply-data" style="color: #888;">加载中...</div>
                 </div>
             </div>
 
@@ -629,7 +629,7 @@
             <div id="section-security" class="content-section" style="display: none;">
                 <div class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">安全系統管理</h2>
+                        <h2 class="section-title" style="margin: 0;">安全系统管理</h2>
                         <label class="switch">
                             <input type="checkbox" id="securityToggle" onchange="toggleSecuritySystem()">
                             <span class="slider"></span>
@@ -638,21 +638,21 @@
 
                     <!-- 配置區域 -->
                     <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem;">
-                        <h3 style="margin: 0 0 1rem 0; color: #fff; font-size: 1.1rem;">系統配置</h3>
+                        <h3 style="margin: 0 0 1rem 0; color: #fff; font-size: 1.1rem;">系统配置</h3>
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
                             <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">處罰類型</label>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">处罚类型</label>
                                 <select id="actionType" onchange="updateSecurityConfig()" 
                                         style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                                    <option value="timeout">超時（Timeout）</option>
+                                    <option value="timeout">超时（Timeout）</option>
                                     <option value="delete">僅刪除消息</option>
                                     <option value="warn">警告</option>
                                 </select>
                             </div>
                             
                             <div>
-                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">超時時長（秒）</label>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">超时时长（秒）</label>
                                 <input type="number" id="timeoutDuration" min="1" max="2419200" value="60" onchange="updateSecurityConfig()"
                                        style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
                             </div>
@@ -663,13 +663,13 @@
                                         style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
                                     <option value="contains">包含匹配</option>
                                     <option value="exact">完全匹配</option>
-                                    <option value="regex">正則匹配</option>
+                                    <option value="regex">正则匹配</option>
                                 </select>
                             </div>
                             
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; color: #888;">
-                                    區分大小寫
+                                    区分大小写
                                 </label>
                                 <label class="switch">
                                     <input type="checkbox" id="caseSensitive" onchange="updateSecurityConfig()">
@@ -682,15 +682,15 @@
                     <!-- 違禁詞管理 -->
                     <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="margin: 0; color: #fff; font-size: 1.1rem;">違禁詞列表</h3>
+                            <h3 style="margin: 0; color: #fff; font-size: 1.1rem;">违禁词列表</h3>
                             <button onclick="showAddBannedWordDialog()" 
                                     style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                                ➕ 添加違禁詞
+                                ➕ 添加违禁词
                             </button>
                         </div>
                         
                         <div id="bannedWordsList" style="margin-top: 1rem;">
-                            <!-- 違禁詞列表將在這裡動態生成 -->
+                            <!-- 违禁词列表将在这里动态生成 -->
                         </div>
                     </div>
                 </div>
@@ -700,7 +700,7 @@
             <div id="section-scheduled-messages" class="content-section" style="display: none;">
                 <div class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 class="section-title" style="margin: 0;">定時消息管理</h2>
+                        <h2 class="section-title" style="margin: 0;">定时消息管理</h2>
                         <button onclick="showAddScheduledMessageDialog()" 
                                 style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
                             ➕ 新增定時消息
@@ -709,7 +709,7 @@
 
                     <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
                         <div id="scheduled-messages-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                            <!-- 定時消息列表將在這裡動態生成 -->
+                            <!-- 定时消息列表将在这里动态生成 -->
                         </div>
                     </div>
                 </div>
@@ -721,31 +721,31 @@
     <div id="scheduledMessageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
         <div style="background: #2b2b2b; border-radius: 4px; max-width: 600px; width: 90%; padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #fff;">新增定時消息</h3>
+                <h3 style="margin: 0; color: #fff;">新增定时消息</h3>
                 <button onclick="closeScheduledMessageDialog()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <!-- 時間輸入 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">發送時間 (UTC+8)</label>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">发送时间 (UTC+8)</label>
                     <input type="text" id="scheduleTime" placeholder="格式: YYYY/MM/DD HH:MM，例如: 2026/02/18 15:30" 
                            style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                    <small style="color: #888;">時區為 UTC+8（台灣/香港/中國時間）</small>
+                    <small style="color: #888;">时区为 UTC+8（台湾/香港/中国时间）</small>
                 </div>
                 
                 <!-- 頻道選擇 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">發送頻道</label>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">发送频道</label>
                     <select id="scheduleChannel" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                        <!-- 頻道列表將動態載入 -->
+                        <!-- 频道列表将动态加载 -->
                     </select>
                 </div>
                 
                 <!-- 消息內容 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">消息內容</label>
-                    <textarea id="scheduleMessage" rows="5" placeholder="輸入要發送的消息內容" 
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">消息内容</label>
+                    <textarea id="scheduleMessage" rows="5" placeholder="输入要发送的消息内容" 
                               style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
                 </div>
                 
@@ -768,74 +768,74 @@
     <div id="autoReplyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
         <div style="background: #2b2b2b; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 id="modalTitle" style="margin: 0; color: #fff;">添加自動回覆規則</h3>
+                <h3 id="modalTitle" style="margin: 0; color: #fff;">添加自动回复规则</h3>
                 <button onclick="closeAutoReplyModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
             
             <input type="hidden" id="editRuleId" value="">
             
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 觸發詞 -->
+                <!-- 触发词 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">觸發詞</label>
-                    <input type="text" id="triggerInput" placeholder="輸入觸發關鍵詞" 
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">触发词</label>
+                    <input type="text" id="triggerInput" placeholder="输入触发关键词" 
                            style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
                 </div>
                 
-                <!-- 回覆內容 -->
+                <!-- 回复内容 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回覆內容</label>
-                    <textarea id="replyInput" rows="3" placeholder="輸入回覆內容&#10;&#10;可用變量: {user} {username} {server} {channel}" 
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回复内容</label>
+                    <textarea id="replyInput" rows="3" placeholder="输入回复内容&#10;&#10;可用变量: {user} {username} {server} {channel}" 
                               style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
                 </div>
                 
-                <!-- 匹配類型 -->
+                <!-- 匹配类型 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">匹配類型</label>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">匹配类型</label>
                     <select id="matchTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
-                        <option value="contains">包含關鍵詞</option>
+                        <option value="contains">包含关键词</option>
                         <option value="exact">完全匹配</option>
-                        <option value="starts_with">以...開頭</option>
-                        <option value="ends_with">以...結尾</option>
-                        <option value="regex">正則表達式</option>
+                        <option value="starts_with">以...开头</option>
+                        <option value="ends_with">以...结尾</option>
+                        <option value="regex">正则表达式</option>
                     </select>
                 </div>
                 
-                <!-- 回覆類型 -->
+                <!-- 回复类型 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回覆類型</label>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回复类型</label>
                     <select id="replyTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;" onchange="toggleReactionInput(this.value)">
                         <option value="message">普通消息</option>
-                        <option value="reply">回覆消息</option>
-                        <option value="dm">私訊用戶</option>
-                        <option value="react">添加反應</option>
+                        <option value="reply">回复消息</option>
+                        <option value="dm">私信用户</option>
+                        <option value="react">添加表情</option>
                     </select>
                 </div>
                 
-                <!-- 反應 Emoji（僅在回覆類型為 react 時顯示） -->
+                <!-- 表情 Emoji（仅在回复类型为 react 时显示） -->
                 <div id="reactionInputDiv" style="display: none;">
                     <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">反應 Emoji</label>
-                    <input type="text" id="reactionInput" placeholder="輸入 Emoji，例如：👍" value="👍"
+                    <input type="text" id="reactionInput" placeholder="输入 Emoji，例如：👍" value="👍"
                            style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
                 </div>
                 
-                <!-- 選項 -->
+                <!-- 选项 -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
                         <input type="checkbox" id="caseSensitiveCheck">
-                        區分大小寫
+                        区分大小写
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
                         <input type="checkbox" id="mentionUserCheck">
-                        提及用戶
+                        提及用户
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
                         <input type="checkbox" id="triggerOnceCheck">
-                        只觸發一次
+                        只触发一次
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
                         <input type="checkbox" id="enabledCheck" checked>
-                        啟用規則
+                        启用规则
                     </label>
                 </div>
                 
@@ -858,15 +858,15 @@
     <div id="bannedWordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
         <div style="background: #2b2b2b; border-radius: 8px; max-width: 500px; width: 90%; padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #fff;">添加違禁詞</h3>
+                <h3 style="margin: 0; color: #fff;">添加违禁词</h3>
                 <button onclick="closeBannedWordModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 違禁詞輸入 -->
+                <!-- 违禁词输入 -->
                 <div>
-                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">違禁詞</label>
-                    <input type="text" id="bannedWordInput" placeholder="輸入要禁止的詞語" 
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">违禁词</label>
+                    <input type="text" id="bannedWordInput" placeholder="输入要禁止的词语" 
                            onkeypress="if(event.key==='Enter') submitBannedWord()"
                            style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
                 </div>
@@ -1047,7 +1047,7 @@
             }
         }
 
-        // 載入歡迎系統設定
+        // 加载欢迎系统设置
         async function loadWelcome() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/welcome');
@@ -1058,14 +1058,14 @@
                     const channels = await channelsResponse.json();
                     const container = document.getElementById('welcome-data');
                     
-                    // 如果文件不存在，使用默認值
+                    // 如果文件不存在，使用默认值
                     const settings = data.exists ? data.data : {
                         welcome_enabled: false,
                         leave_enabled: false,
                         welcome_channel: null,
                         leave_channel: null,
-                        welcome_message: '歡迎 {user} 加入 {server}！',
-                        leave_message: '{username} 離開了伺服器'
+                        welcome_message: '欢迎 {user} 加入 {server}！',
+                        leave_message: '{username} 离开了服务器'
                     };
                     
                     const welcomeChecked = settings.welcome_enabled ? 'checked' : '';
@@ -1073,10 +1073,10 @@
                     const welcomeStatusColor = settings.welcome_enabled ? '#2563eb' : '#6b7280';
                     const leaveStatusColor = settings.leave_enabled ? '#2563eb' : '#6b7280';
                     
-                    // 生成頻道選項
+                    // 生成频道选项
                     const textChannels = channels.text_channels || [];
-                    let welcomeChannelOptions = '<option value="">未設定</option>';
-                    let leaveChannelOptions = '<option value="">未設定</option>';
+                    let welcomeChannelOptions = '<option value="">未设定</option>';
+                    let leaveChannelOptions = '<option value="">未设定</option>';
                     
                     textChannels.forEach(channel => {
                         const welcomeSelected = settings.welcome_channel && settings.welcome_channel == channel.id ? 'selected' : '';
@@ -1086,12 +1086,12 @@
                     });
                     
                     container.innerHTML = `
-                        ${!data.exists ? '<div style="background: #2b2b2b; padding: 0.75rem; margin-bottom: 1rem; border-left: 3px solid #888; color: #888; font-size: 0.9rem;">使用默認配置（修改後將自動創建配置文件）</div>' : ''}
+                        ${!data.exists ? '<div style="background: #2b2b2b; padding: 0.75rem; margin-bottom: 1rem; border-left: 3px solid #888; color: #888; font-size: 0.9rem;">使用默认配置（修改后将自动创建配置文件）</div>' : ''}
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                            <!-- 歡迎系統 -->
+                            <!-- 欢迎系统 -->
                             <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${welcomeStatusColor};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">歡迎系統</div>
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">欢迎系统</div>
                                     <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
                                         <input type="checkbox" id="welcome-toggle" ${welcomeChecked} 
                                                onchange="toggleWelcome('welcome', this.checked)"
@@ -1105,33 +1105,33 @@
                                     </label>
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <span style="color: ${welcomeStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.welcome_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
+                                    <span style="color: ${welcomeStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.welcome_enabled ? '✓ 已开启' : '○ 已关闭'}</span>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎頻道</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">欢迎频道</label>
                                     <select id="welcome-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                         ${welcomeChannelOptions}
                                     </select>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎訊息</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">欢迎消息</label>
                                     <textarea id="welcome-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.welcome_message}</textarea>
                                     <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
-                                        可用變數：{user} {username} {server}
+                                        可用变量：{user} {username} {server}
                                     </div>
                                 </div>
                                 
                                 <button onclick="saveWelcomeSettings('welcome')" class="btn btn-primary" style="width: 100%;">
-                                    保存設定
+                                    保存设置
                                 </button>
                             </div>
                             
-                            <!-- 離開系統 -->
+                            <!-- 离开系统 -->
                             <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${leaveStatusColor};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">離開系統</div>
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">离开系统</div>
                                     <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
                                         <input type="checkbox" id="leave-toggle" ${leaveChecked} 
                                                onchange="toggleWelcome('leave', this.checked)"
@@ -1145,37 +1145,37 @@
                                     </label>
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <span style="color: ${leaveStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.leave_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
+                                    <span style="color: ${leaveStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.leave_enabled ? '✓ 已开启' : '○ 已关闭'}</span>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開頻道</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">离开频道</label>
                                     <select id="leave-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                         ${leaveChannelOptions}
                                     </select>
                                 </div>
                                 
                                 <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開訊息</label>
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">离开消息</label>
                                     <textarea id="leave-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.leave_message}</textarea>
                                     <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
-                                        可用變數：{user} {username} {server}
+                                        可用变量：{user} {username} {server}
                                     </div>
                                 </div>
                                 
                                 <button onclick="saveWelcomeSettings('leave')" class="btn btn-primary" style="width: 100%;">
-                                    保存設定
+                                    保存设置
                                 </button>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('welcome-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('welcome-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
-        // 切換歡迎系統開關
+        // 切换欢迎系统开关
         async function toggleWelcome(type, enabled) {
             try {
                 const response = await fetch('/api/welcome/' + GUILD_ID + '/toggle', {
@@ -1192,12 +1192,12 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success) {
-                        // 重新載入歡迎系統設定以更新UI
+                        // 重新加载欢迎系统设置以更新UI
                         loadWelcome();
                         
-                        // 顯示成功提示
-                        const statusText = enabled ? '已開啟' : '已關閉';
-                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
+                        // 显示成功提示
+                        const statusText = enabled ? '已开启' : '已关闭';
+                        const typeText = type === 'welcome' ? '欢迎系统' : '离开系统';
                         showNotification(`${typeText}${statusText}`, 'success');
                     }
                 } else {
@@ -1207,13 +1207,13 @@
                 }
             } catch (error) {
                 console.error('切換失敗:', error);
-                showNotification('發生錯誤', 'error');
-                // 恢復開關狀態
+                showNotification('发生错误', 'error');
+                // 恢复开关状态
                 loadWelcome();
             }
         }
 
-        // 保存歡迎系統設定
+        // 保存欢迎系统设置
         async function saveWelcomeSettings(type) {
             try {
                 let channel, message;
@@ -1228,7 +1228,7 @@
                 
                 // 驗證
                 if (!message.trim()) {
-                    showNotification('訊息內容不能為空', 'error');
+                    showNotification('消息内容不能为空', 'error');
                     return;
                 }
                 
@@ -1253,8 +1253,8 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success) {
-                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
-                        showNotification(`${typeText}設定已保存`, 'success');
+                        const typeText = type === 'welcome' ? '欢迎系统' : '离开系统';
+                        showNotification(`${typeText}设置已保存`, 'success');
                         loadWelcome();
                     }
                 } else {
@@ -1293,7 +1293,7 @@
             }, 3000);
         }
 
-        // 載入生日數據
+        // 加载生日数据
         async function loadBirthdays() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/birthdays');
@@ -1302,7 +1302,7 @@
                     const container = document.getElementById('birthday-data');
                     
                     if (!data.exists || Object.keys(data.data).length === 0) {
-                        container.innerHTML = '<p style="color: #888;">暫無生日記錄</p>';
+                        container.innerHTML = '<p style="color: #888;">暂无生日记录</p>';
                         return;
                     }
                     
@@ -1313,18 +1313,18 @@
                     container.innerHTML = `
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">已登記生日</div>
+                                <div style="color: #888; font-size: 0.9rem;">已登记生日</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${birthdays}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">本月壽星</div>
+                                <div style="color: #888; font-size: 0.9rem;">本月寿星</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${thisMonth}</div>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('birthday-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('birthday-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
@@ -1388,7 +1388,7 @@
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalGames.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">平均勝率</div>
+                                <div style="color: #888; font-size: 0.9rem;">平均胜率</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${winRate.toFixed(1)}%</div>
                             </div>
                         </div>
@@ -1399,11 +1399,11 @@
                     `;
                 }
             } catch (error) {
-                document.getElementById('game-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('game-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
-        // 載入伺服器統計
+        // 加载服务器统计
         async function loadStatistics() {
             try {
                 const response = await fetch('/api/data/' + GUILD_ID + '/statistics');
@@ -1412,7 +1412,7 @@
                     const container = document.getElementById('statistics-data');
                     
                     if (!data.exists) {
-                        container.innerHTML = '<p style="color: #888;">暫無活躍度數據</p>';
+                        container.innerHTML = '<p style="color: #888;">暂无活跃度数据</p>';
                         return;
                     }
                     
@@ -1424,7 +1424,7 @@
                     const todayMessages = stats.daily_messages?.[today] || 0;
                     
                     // 找出最熱門頻道
-                    let topChannel = '暫無數據';
+                    let topChannel = '暂无数据';
                     let topChannelCount = 0;
                     if (stats.channel_stats) {
                         Object.entries(stats.channel_stats).forEach(([id, info]) => {
@@ -1436,7 +1436,7 @@
                     }
                     
                     // 找出最活躍時段
-                    let peakHour = '暫無數據';
+                    let peakHour = '暂无数据';
                     let peakCount = 0;
                     if (stats.hourly_activity) {
                         Object.entries(stats.hourly_activity).forEach(([hour, count]) => {
@@ -1457,34 +1457,34 @@
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalMessages.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">今日訊息</div>
+                                <div style="color: #888; font-size: 0.9rem;">今日消息</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${todayMessages.toLocaleString()}</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
-                                <div style="color: #888; font-size: 0.9rem;">活躍用戶</div>
+                                <div style="color: #888; font-size: 0.9rem;">活跃用户</div>
                                 <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${activeUsers}</div>
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div style="background: #1a1a1a; padding: 1rem;">
-                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最熱門頻道</div>
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最热门频道</div>
                                 <div style="color: #2563eb; font-weight: 600;">${topChannel}</div>
-                                <div style="color: #888; font-size: 0.85rem;">${topChannelCount.toLocaleString()} 條訊息</div>
+                                <div style="color: #888; font-size: 0.85rem;">${topChannelCount.toLocaleString()} 条消息</div>
                             </div>
                             <div style="background: #1a1a1a; padding: 1rem;">
-                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最活躍時段</div>
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最活跃时段</div>
                                 <div style="color: #2563eb; font-weight: 600;">${peakHour}</div>
-                                <div style="color: #888; font-size: 0.85rem;">${peakCount.toLocaleString()} 條訊息</div>
+                                <div style="color: #888; font-size: 0.85rem;">${peakCount.toLocaleString()} 条消息</div>
                             </div>
                         </div>
                     `;
                 }
             } catch (error) {
-                document.getElementById('statistics-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('statistics-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
-        // 載入自定義命令
+        // 加载自定义命令
         async function loadCustomCommands() {
             try {
                 const response = await fetch('/api/custom-commands/' + GUILD_ID);
@@ -1493,7 +1493,7 @@
                 
                 if (!data.commands || Object.keys(data.commands).length === 0) {
                     container.innerHTML = `
-                        <p style="color: #888;">尚未設定任何自定義命令</p>
+                        <p style="color: #888;">尚未设置任何自定义命令</p>
                         <button onclick="showAddCommandModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">添加命令</button>
                     `;
                 } else {
@@ -1509,10 +1509,10 @@
                                     <div style="flex: 1;">
                                         <div style="color: #2563eb; font-weight: 600; font-size: 1.1rem;">!${name}</div>
                                         <div style="color: #ccc; margin-top: 0.5rem;">${cmd.response}</div>
-                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">使用次數：${cmd.uses || 0}</div>
+                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">使用次数：${cmd.uses || 0}</div>
                                     </div>
                                     <div style="display: flex; gap: 0.5rem;">
-                                        <button onclick="editCommand('${name}', '${cmd.response.replace(/'/g, "&apos;")}')" style="padding: 0.25rem 0.75rem; background: #333; color: #2563eb; border: 1px solid #2563eb; cursor: pointer;">編輯</button>
+                                        <button onclick="editCommand('${name}', '${cmd.response.replace(/'/g, "&apos;")}')" style="padding: 0.25rem 0.75rem; background: #333; color: #2563eb; border: 1px solid #2563eb; cursor: pointer;">编辑</button>
                                         <button onclick="deleteCommand('${name}')" style="padding: 0.25rem 0.75rem; background: #333; color: #dc2626; border: 1px solid #dc2626; cursor: pointer;">刪除</button>
                                     </div>
                                 </div>
@@ -1524,7 +1524,7 @@
                     container.innerHTML = html;
                 }
             } catch (error) {
-                document.getElementById('custom-commands-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('custom-commands-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
@@ -1546,9 +1546,9 @@
             
             modal.innerHTML = `
                 <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
-                    <h3 style="margin-top: 0; color: #fff;">添加自定義命令</h3>
+                    <h3 style="margin-top: 0; color: #fff;">添加自定义命令</h3>
                     <div style="margin-bottom: 1rem;">
-                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">命令名稱（不包含!）</label>
+                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">命令名称（不包含!）</label>
                         <input id="cmd-name" type="text" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">
                     </div>
                     <div style="margin-bottom: 1rem;">
@@ -1571,7 +1571,7 @@
             const response = document.getElementById('cmd-response').value.trim();
             
             if (!name || !response) {
-                showNotification('請填寫完整資訊', 'error');
+                showNotification('请填写完整信息', 'error');
                 return;
             }
             
@@ -1589,14 +1589,14 @@
                     loadCustomCommands();
                     document.querySelector('div[style*="fixed"]').remove();
                 } else {
-                    showNotification(data.error || '添加失敗', 'error');
+                    showNotification(data.error || '添加失败', 'error');
                 }
             } catch (error) {
-                showNotification('添加失敗', 'error');
+                showNotification('添加失败', 'error');
             }
         }
 
-        // 編輯命令
+        // 编辑命令
         function editCommand(name, currentResponse) {
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -1614,14 +1614,14 @@
             
             modal.innerHTML = `
                 <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
-                    <h3 style="margin-top: 0; color: #fff;">編輯命令：!${name}</h3>
+                    <h3 style="margin-top: 0; color: #fff;">编辑命令：!${name}</h3>
                     <div style="margin-bottom: 1rem;">
                         <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">回覆內容</label>
                         <textarea id="edit-response" rows="4" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">${currentResponse.replace(/&apos;/g, "'")}</textarea>
                     </div>
                     <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
                         <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 0.5rem 1rem; background: #333; color: #ccc; border: 1px solid #444; cursor: pointer;">取消</button>
-                        <button onclick="saveEditCommand('${name}')" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">儲存</button>
+                        <button onclick="saveEditCommand('${name}')" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">储存</button>
                     </div>
                 </div>
             `;
@@ -1629,12 +1629,12 @@
             document.body.appendChild(modal);
         }
 
-        // 儲存編輯
+        // 储存编辑
         async function saveEditCommand(name) {
             const response = document.getElementById('edit-response').value.trim();
             
             if (!response) {
-                showNotification('請填寫回覆內容', 'error');
+                showNotification('请填写回复内容', 'error');
                 return;
             }
             
@@ -1683,7 +1683,7 @@
             }
         }
 
-        // 載入臨時語音配置
+        // 加载临时语音配置
         async function loadTempVoice() {
             try {
                 const [configRes, channelsRes] = await Promise.all([
@@ -1711,7 +1711,7 @@
                         
                         <div style="display: grid; gap: 1rem;">
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">觸發頻道</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">触发频道</label>
                                 <select id="trigger-channel" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                     <option value="">選擇語音頻道...</option>
                                     ${channelsData.voice_channels.map(ch => 
@@ -1721,7 +1721,7 @@
                             </div>
                             
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道分類（可選）</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">频道分类（可选）</label>
                                 <select id="category" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
                                     <option value="">無分類</option>
                                     ${channelsData.categories.map(cat => 
@@ -1731,9 +1731,9 @@
                             </div>
                             
                             <div>
-                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道名稱格式</label>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">频道名称格式</label>
                                 <input id="channel-format" type="text" value="${config.channel_name_format}" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
-                                <div style="color: #555; font-size: 0.85rem; margin-top: 0.25rem;">使用 {username} 代表用戶名</div>
+                                <div style="color: #555; font-size: 0.85rem; margin-top: 0.25rem;">使用 {username} 代表用户名</div>
                             </div>
                         </div>
                         
@@ -1751,7 +1751,7 @@
                 
                 container.innerHTML = html;
             } catch (error) {
-                document.getElementById('temp-voice-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                document.getElementById('temp-voice-data').innerHTML = '<p style="color: #dc2626;">加载失败</p>';
             }
         }
 
@@ -1767,7 +1767,7 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    showNotification(enabled ? '臨時語音系統已啟用' : '臨時語音系統已停用', 'success');
+                    showNotification(enabled ? '临时语音系统已启用' : '临时语音系统已停用', 'success');
                     loadTempVoice();
                 } else {
                     showNotification(data.error || '更新失敗', 'error');
