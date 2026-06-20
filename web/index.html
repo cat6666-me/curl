@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord 機器人控制台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', -apple-system, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .header {
+            background: #2b2b2b;
+            border-left: 4px solid #2563eb;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            background: #2b2b2b;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #2563eb;
+            border-radius: 50%;
+        }
+
+        .status-text {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            background: #2b2b2b;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #1a1a1a;
+            border: 2px solid #2563eb;
+            color: #2563eb;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #5865f2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 2rem;
+            transition: background 0.2s;
+        }
+        
+        .login-btn:hover {
+            background: #4752c4;
+        }
+
+        .description {
+            color: #888;
+            font-size: 1rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1px;
+            background: #1a1a1a;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background: #2b2b2b;
+            padding: 1.5rem;
+            color: #ccc;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+
+        .feature-item:hover {
+            background: #333;
+        }
+
+        .feature-icon {
+            width: 6px;
+            height: 6px;
+            background: #888;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            background: #2b2b2b;
+            border-top: 1px solid #333;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .divider {
+            height: 1px;
+            background: #333;
+            margin: 2rem 0;
+        }
+
+        /* 移動端響應式樣式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .status-bar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .description {
+                font-size: 0.95rem;
+            }
+
+            .login-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-item {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .header .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .status-badge {
+                padding: 0.4rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Discord 機器人控制台</h1>
+            <div class="subtitle">Bot Management Dashboard</div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot"></div>
+                <span class="status-text">系統運行中</span>
+            </div>
+            <div class="status-item">
+                <span class="status-text">版本 1.0.0</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="status-badge">開發中</div>
+            
+            <div class="description">
+                後台管理系統正在開發，即將提供完整的機器人管理功能
+            </div>
+            
+            <a href="/login" class="login-btn">使用 Discord 登錄</a>
+
+            <div class="divider"></div>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>伺服器統計資訊</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>用戶等級管理</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>指令使用記錄</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>機器人設定</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>日誌查看</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <span>權限管理</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2026 Discord Bot Dashboard · All Rights Reserved
+        </div>
+    </div>
+</body>
+</html>

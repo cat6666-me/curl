@@ -1,0 +1,3109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord 機器人控制台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', -apple-system, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .navbar {
+            background: #2b2b2b;
+            border-bottom: 1px solid #333;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #2563eb;
+        }
+
+        .user-name {
+            color: #ccc;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            background: none;
+            border: none;
+            margin-right: 1rem;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 3px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 73px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #2b2b2b;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar-item {
+            padding: 1rem 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-item:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .sidebar-item.active {
+            background: #1a1a1a;
+            border-left-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .sidebar-section {
+            padding: 0.75rem 1.5rem;
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .content-section {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 100%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #2b2b2b;
+            padding: 1.5rem;
+            border-left: 4px solid #2563eb;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .section {
+            background: #2b2b2b;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+
+        .guild-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .guild-item {
+            background: #1a1a1a;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid #333;
+        }
+
+        .guild-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .guild-info {
+            flex: 1;
+        }
+
+        .guild-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .guild-members {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feature-item {
+            background: #1a1a1a;
+            padding: 1rem;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-label {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* 移動端響應式樣式 */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .navbar {
+                padding: 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand span {
+                display: none;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 73px;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logout-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="切換菜單">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="navbar-brand">
+            Discord Bot Dashboard
+            <span style="margin-left: 1rem; color: #888; font-size: 0.9rem;">/ {GUILD_NAME}</span>
+        </div>
+        <div class="navbar-user">
+            <a href="/my-tickets" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">🎫 我的客服單</a>
+            <a href="/select-server" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">← 返回伺服器列表</a>
+            <img src="{AVATAR_URL}" alt="Avatar" class="user-avatar">
+            <span class="user-name">{USERNAME}</span>
+            <a href="/logout" class="logout-btn">登出</a>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-layout">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">數據總覽</div>
+            <div class="sidebar-item active" onclick="showSection('dashboard')">
+                儀表板
+            </div>
+            <div class="sidebar-item" onclick="showSection('levels')">
+                等級系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('daily')">
+                簽到系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('birthdays')">
+                生日系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('games')">
+                遊戲系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('statistics')">
+                活躍度分析
+            </div>
+            
+            <div class="sidebar-section">系統管理</div>
+            <div class="sidebar-item" onclick="showSection('warnings')">
+                警告管理
+            </div>
+            <div class="sidebar-item" onclick="showSection('achievements')">
+                成就管理
+            </div>
+            <div class="sidebar-item" onclick="showSection('tickets')">
+                客服單管理
+            </div>
+            <div class="sidebar-item" onclick="showSection('custom-commands')">
+                自定義命令
+            </div>
+            
+            <div class="sidebar-section">系統設定</div>
+            <div class="sidebar-item" onclick="showSection('welcome')">
+                歡迎系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('temp-voice')">
+                臨時語音
+            </div>
+            <div class="sidebar-item" onclick="showSection('auto-reply')">
+                自動回覆
+            </div>
+            <div class="sidebar-item" onclick="showSection('security')">
+                安全系統
+            </div>
+            <div class="sidebar-item" onclick="showSection('scheduled-messages')">
+                定時消息
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="section-dashboard" class="content-section">
+                <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">成員數量</div>
+                <div class="stat-value" id="member-count">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">頻道數量</div>
+                <div class="stat-value" id="channel-count">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">身分組數量</div>
+                <div class="stat-value" id="role-count">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">文字頻道</div>
+                <div class="stat-value" id="text-channels">-</div>
+            </div>
+        </div>
+            </div>
+
+            <!-- 等級系統 -->
+            <div id="section-levels" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">等級系統數據</h2>
+                    <div id="levels-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 簽到系統 -->
+            <div id="section-daily" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">簽到系統數據</h2>
+                    <div id="daily-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 生日系統 -->
+            <div id="section-birthdays" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">生日系統數據</h2>
+                    <div id="birthday-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 遊戲系統 -->
+            <div id="section-games" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">遊戲系統數據</h2>
+                    <div id="game-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 活躍度分析 -->
+            <div id="section-statistics" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">伺服器活躍度</h2>
+                    <div id="statistics-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 警告管理 -->
+            <div id="section-warnings" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">警告系統管理</h2>
+                    <div id="warnings-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 成就管理 -->
+            <div id="section-achievements" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">成就系統管理</h2>
+                    <div id="achievements-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 自定義命令 -->
+            <div id="section-custom-commands" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">自定義命令管理</h2>
+                    <div id="custom-commands-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 歡迎系統 -->
+            <div id="section-welcome" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">歡迎系統設定</h2>
+                    <div id="welcome-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 臨時語音 -->
+            <div id="section-temp-voice" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">臨時語音頻道設定</h2>
+                    <div id="temp-voice-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 客服單管理 -->
+            <div id="section-tickets" class="content-section" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">客服單系統管理</h2>
+                    <div id="tickets-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 自動回覆系統 -->
+            <div id="section-auto-reply" class="content-section" style="display: none;">
+                <div class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="section-title" style="margin: 0;">自動回覆管理</h2>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
+                                <span id="auto-reply-system-status">系統狀態</span>
+                                <input type="checkbox" id="auto-reply-system-toggle" onchange="toggleAutoReplySystem(this.checked)"
+                                       style="width: 44px; height: 22px;">
+                            </label>
+                            <button class="action-btn" onclick="openAddAutoReplyModal()" 
+                                    style="background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+                                ➕ 添加規則
+                            </button>
+                        </div>
+                    </div>
+                    <div id="auto-reply-data" style="color: #888;">載入中...</div>
+                </div>
+            </div>
+
+            <!-- 安全系統 -->
+            <div id="section-security" class="content-section" style="display: none;">
+                <div class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="section-title" style="margin: 0;">安全系統管理</h2>
+                        <label class="switch">
+                            <input type="checkbox" id="securityToggle" onchange="toggleSecuritySystem()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 配置區域 -->
+                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: #fff; font-size: 1.1rem;">系統配置</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">處罰類型</label>
+                                <select id="actionType" onchange="updateSecurityConfig()" 
+                                        style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                                    <option value="timeout">超時（Timeout）</option>
+                                    <option value="delete">僅刪除消息</option>
+                                    <option value="warn">警告</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">超時時長（秒）</label>
+                                <input type="number" id="timeoutDuration" min="1" max="2419200" value="60" onchange="updateSecurityConfig()"
+                                       style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">匹配模式</label>
+                                <select id="matchType" onchange="updateSecurityConfig()"
+                                        style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                                    <option value="contains">包含匹配</option>
+                                    <option value="exact">完全匹配</option>
+                                    <option value="regex">正則匹配</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: #888;">
+                                    區分大小寫
+                                </label>
+                                <label class="switch">
+                                    <input type="checkbox" id="caseSensitive" onchange="updateSecurityConfig()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 違禁詞管理 -->
+                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="margin: 0; color: #fff; font-size: 1.1rem;">違禁詞列表</h3>
+                            <button onclick="showAddBannedWordDialog()" 
+                                    style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                ➕ 添加違禁詞
+                            </button>
+                        </div>
+                        
+                        <div id="bannedWordsList" style="margin-top: 1rem;">
+                            <!-- 違禁詞列表將在這裡動態生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 定時消息 -->
+            <div id="section-scheduled-messages" class="content-section" style="display: none;">
+                <div class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="section-title" style="margin: 0;">定時消息管理</h2>
+                        <button onclick="showAddScheduledMessageDialog()" 
+                                style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                            ➕ 新增定時消息
+                        </button>
+                    </div>
+
+                    <div style="background: #1e1e1e; padding: 1.5rem; border-radius: 4px;">
+                        <div id="scheduled-messages-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- 定時消息列表將在這裡動態生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加定時消息的模態框 -->
+    <div id="scheduledMessageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #2b2b2b; border-radius: 4px; max-width: 600px; width: 90%; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #fff;">新增定時消息</h3>
+                <button onclick="closeScheduledMessageDialog()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- 時間輸入 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">發送時間 (UTC+8)</label>
+                    <input type="text" id="scheduleTime" placeholder="格式: YYYY/MM/DD HH:MM，例如: 2026/02/18 15:30" 
+                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                    <small style="color: #888;">時區為 UTC+8（台灣/香港/中國時間）</small>
+                </div>
+                
+                <!-- 頻道選擇 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">發送頻道</label>
+                    <select id="scheduleChannel" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                        <!-- 頻道列表將動態載入 -->
+                    </select>
+                </div>
+                
+                <!-- 消息內容 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">消息內容</label>
+                    <textarea id="scheduleMessage" rows="5" placeholder="輸入要發送的消息內容" 
+                              style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
+                </div>
+                
+                <!-- 按鈕 -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button onclick="saveScheduledMessage()" 
+                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        保存
+                    </button>
+                    <button onclick="closeScheduledMessageDialog()" 
+                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/編輯自動回覆規則的模態框 -->
+    <div id="autoReplyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #2b2b2b; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 id="modalTitle" style="margin: 0; color: #fff;">添加自動回覆規則</h3>
+                <button onclick="closeAutoReplyModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <input type="hidden" id="editRuleId" value="">
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- 觸發詞 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">觸發詞</label>
+                    <input type="text" id="triggerInput" placeholder="輸入觸發關鍵詞" 
+                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                </div>
+                
+                <!-- 回覆內容 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回覆內容</label>
+                    <textarea id="replyInput" rows="3" placeholder="輸入回覆內容&#10;&#10;可用變量: {user} {username} {server} {channel}" 
+                              style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff; resize: vertical;"></textarea>
+                </div>
+                
+                <!-- 匹配類型 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">匹配類型</label>
+                    <select id="matchTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                        <option value="contains">包含關鍵詞</option>
+                        <option value="exact">完全匹配</option>
+                        <option value="starts_with">以...開頭</option>
+                        <option value="ends_with">以...結尾</option>
+                        <option value="regex">正則表達式</option>
+                    </select>
+                </div>
+                
+                <!-- 回覆類型 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">回覆類型</label>
+                    <select id="replyTypeSelect" style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;" onchange="toggleReactionInput(this.value)">
+                        <option value="message">普通消息</option>
+                        <option value="reply">回覆消息</option>
+                        <option value="dm">私訊用戶</option>
+                        <option value="react">添加反應</option>
+                    </select>
+                </div>
+                
+                <!-- 反應 Emoji（僅在回覆類型為 react 時顯示） -->
+                <div id="reactionInputDiv" style="display: none;">
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">反應 Emoji</label>
+                    <input type="text" id="reactionInput" placeholder="輸入 Emoji，例如：👍" value="👍"
+                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                </div>
+                
+                <!-- 選項 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
+                        <input type="checkbox" id="caseSensitiveCheck">
+                        區分大小寫
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
+                        <input type="checkbox" id="mentionUserCheck">
+                        提及用戶
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
+                        <input type="checkbox" id="triggerOnceCheck">
+                        只觸發一次
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: #ccc;">
+                        <input type="checkbox" id="enabledCheck" checked>
+                        啟用規則
+                    </label>
+                </div>
+                
+                <!-- 按鈕 -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button onclick="saveAutoReply()" 
+                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        保存
+                    </button>
+                    <button onclick="closeAutoReplyModal()" 
+                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加違禁詞的模態框 -->
+    <div id="bannedWordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #2b2b2b; border-radius: 8px; max-width: 500px; width: 90%; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #fff;">添加違禁詞</h3>
+                <button onclick="closeBannedWordModal()" style="background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- 違禁詞輸入 -->
+                <div>
+                    <label style="display: block; color: #ccc; margin-bottom: 0.5rem;">違禁詞</label>
+                    <input type="text" id="bannedWordInput" placeholder="輸入要禁止的詞語" 
+                           onkeypress="if(event.key==='Enter') submitBannedWord()"
+                           style="width: 100%; padding: 0.75rem; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; color: #fff;">
+                </div>
+                
+                <!-- 按鈕 -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button onclick="submitBannedWord()" 
+                            style="flex: 1; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        確定
+                    </button>
+                    <button onclick="closeBannedWordModal()" 
+                            style="flex: 1; padding: 0.75rem; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GUILD_ID = '{GUILD_ID}';
+        
+        // HTML 轉義函數（防止 XSS 攻擊）
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // 漢堡菜單切換函數
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const hamburger = document.querySelector('.hamburger');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+        
+        // 側邊欄切換函數
+        function showSection(sectionName) {
+            // 隱藏所有section
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 移除所有active狀態
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 顯示選中的section
+            const targetSection = document.getElementById('section-' + sectionName);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+            
+            // 載入對應section的數據
+            if (sectionName === 'scheduled-messages') {
+                loadScheduledMessages();
+            }
+            
+            // 添加active狀態到點擊的項目
+            event.currentTarget.classList.add('active');
+            
+            // 移動端：切換頁面後自動關閉側邊欄
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('.sidebar-overlay');
+                const hamburger = document.querySelector('.hamburger');
+                
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+        }
+        
+        // 載入統計數據
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats/' + GUILD_ID);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('member-count').textContent = stats.member_count.toLocaleString();
+                    document.getElementById('channel-count').textContent = stats.channel_count;
+                    document.getElementById('role-count').textContent = stats.role_count;
+                    document.getElementById('text-channels').textContent = stats.text_channels;
+                }
+            } catch (error) {
+                console.error('載入統計數據失敗:', error);
+            }
+        }
+
+        // 載入等級數據
+        async function loadLevels() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/levels');
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('levels-data');
+                    
+                    if (!data.exists || Object.keys(data.data).length === 0) {
+                        container.innerHTML = '<p style="color: #888;">暫無等級數據</p>';
+                        return;
+                    }
+                    
+                    // 計算統計
+                    const users = Object.keys(data.data).length;
+                    const totalXP = Object.values(data.data).reduce((sum, user) => sum + (user.xp || 0), 0);
+                    const totalMessages = Object.values(data.data).reduce((sum, user) => sum + (user.messages || 0), 0);
+                    
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">註冊用戶</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${users}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總經驗值</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalXP.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總訊息數</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalMessages.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('levels-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 載入簽到數據
+        async function loadDaily() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/daily');
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('daily-data');
+                    
+                    if (!data.exists || Object.keys(data.data).length === 0) {
+                        container.innerHTML = '<p style="color: #888;">暫無簽到數據</p>';
+                        return;
+                    }
+                    
+                    const users = Object.keys(data.data).length;
+                    const totalCheckins = Object.values(data.data).reduce((sum, user) => sum + (user.total_checkins || 0), 0);
+                    const totalPoints = Object.values(data.data).reduce((sum, user) => sum + (user.total_points || 0), 0);
+                    
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">簽到用戶</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${users}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總簽到次數</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalCheckins.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總積分</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalPoints.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('daily-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 載入歡迎系統設定
+        async function loadWelcome() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/welcome');
+                const channelsResponse = await fetch('/api/channels/' + GUILD_ID);
+                
+                if (response.ok && channelsResponse.ok) {
+                    const data = await response.json();
+                    const channels = await channelsResponse.json();
+                    const container = document.getElementById('welcome-data');
+                    
+                    // 如果文件不存在，使用默認值
+                    const settings = data.exists ? data.data : {
+                        welcome_enabled: false,
+                        leave_enabled: false,
+                        welcome_channel: null,
+                        leave_channel: null,
+                        welcome_message: '歡迎 {user} 加入 {server}！',
+                        leave_message: '{username} 離開了伺服器'
+                    };
+                    
+                    const welcomeChecked = settings.welcome_enabled ? 'checked' : '';
+                    const leaveChecked = settings.leave_enabled ? 'checked' : '';
+                    const welcomeStatusColor = settings.welcome_enabled ? '#2563eb' : '#6b7280';
+                    const leaveStatusColor = settings.leave_enabled ? '#2563eb' : '#6b7280';
+                    
+                    // 生成頻道選項
+                    const textChannels = channels.text_channels || [];
+                    let welcomeChannelOptions = '<option value="">未設定</option>';
+                    let leaveChannelOptions = '<option value="">未設定</option>';
+                    
+                    textChannels.forEach(channel => {
+                        const welcomeSelected = settings.welcome_channel && settings.welcome_channel == channel.id ? 'selected' : '';
+                        const leaveSelected = settings.leave_channel && settings.leave_channel == channel.id ? 'selected' : '';
+                        welcomeChannelOptions += `<option value="${channel.id}" ${welcomeSelected}>${channel.name}</option>`;
+                        leaveChannelOptions += `<option value="${channel.id}" ${leaveSelected}>${channel.name}</option>`;
+                    });
+                    
+                    container.innerHTML = `
+                        ${!data.exists ? '<div style="background: #2b2b2b; padding: 0.75rem; margin-bottom: 1rem; border-left: 3px solid #888; color: #888; font-size: 0.9rem;">使用默認配置（修改後將自動創建配置文件）</div>' : ''}
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <!-- 歡迎系統 -->
+                            <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${welcomeStatusColor};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">歡迎系統</div>
+                                    <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
+                                        <input type="checkbox" id="welcome-toggle" ${welcomeChecked} 
+                                               onchange="toggleWelcome('welcome', this.checked)"
+                                               style="opacity: 0; width: 0; height: 0;">
+                                        <span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+                                                     background: ${settings.welcome_enabled ? '#333' : '#2b2b2b'}; 
+                                                     transition: 0.2s; border: 1px solid ${settings.welcome_enabled ? '#2563eb' : '#444'};">
+                                            <span style="position: absolute; height: 14px; width: 14px; left: ${settings.welcome_enabled ? '26px' : '4px'}; 
+                                                         top: 3px; background: ${settings.welcome_enabled ? '#2563eb' : '#666'}; transition: 0.2s;"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <span style="color: ${welcomeStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.welcome_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
+                                </div>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎頻道</label>
+                                    <select id="welcome-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                        ${welcomeChannelOptions}
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">歡迎訊息</label>
+                                    <textarea id="welcome-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.welcome_message}</textarea>
+                                    <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
+                                        可用變數：{user} {username} {server}
+                                    </div>
+                                </div>
+                                
+                                <button onclick="saveWelcomeSettings('welcome')" class="btn btn-primary" style="width: 100%;">
+                                    保存設定
+                                </button>
+                            </div>
+                            
+                            <!-- 離開系統 -->
+                            <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${leaveStatusColor};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div style="color: #fff; font-size: 1rem; font-weight: 600;">離開系統</div>
+                                    <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
+                                        <input type="checkbox" id="leave-toggle" ${leaveChecked} 
+                                               onchange="toggleWelcome('leave', this.checked)"
+                                               style="opacity: 0; width: 0; height: 0;">
+                                        <span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+                                                     background: ${settings.leave_enabled ? '#333' : '#2b2b2b'}; 
+                                                     transition: 0.2s; border: 1px solid ${settings.leave_enabled ? '#2563eb' : '#444'};">
+                                            <span style="position: absolute; height: 14px; width: 14px; left: ${settings.leave_enabled ? '26px' : '4px'}; 
+                                                         top: 3px; background: ${settings.leave_enabled ? '#2563eb' : '#666'}; transition: 0.2s;"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <span style="color: ${leaveStatusColor}; font-weight: 500; font-size: 0.9rem;">${settings.leave_enabled ? '✓ 已開啟' : '○ 已關閉'}</span>
+                                </div>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開頻道</label>
+                                    <select id="leave-channel" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                        ${leaveChannelOptions}
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.5rem;">離開訊息</label>
+                                    <textarea id="leave-message" rows="3" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc; resize: vertical; font-family: inherit;">${settings.leave_message}</textarea>
+                                    <div style="color: #666; font-size: 0.75rem; margin-top: 0.25rem;">
+                                        可用變數：{user} {username} {server}
+                                    </div>
+                                </div>
+                                
+                                <button onclick="saveWelcomeSettings('leave')" class="btn btn-primary" style="width: 100%;">
+                                    保存設定
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('welcome-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 切換歡迎系統開關
+        async function toggleWelcome(type, enabled) {
+            try {
+                const response = await fetch('/api/welcome/' + GUILD_ID + '/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        enabled: enabled
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        // 重新載入歡迎系統設定以更新UI
+                        loadWelcome();
+                        
+                        // 顯示成功提示
+                        const statusText = enabled ? '已開啟' : '已關閉';
+                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
+                        showNotification(`${typeText}${statusText}`, 'success');
+                    }
+                } else {
+                    showNotification('設定更新失敗', 'error');
+                    // 恢復開關狀態
+                    loadWelcome();
+                }
+            } catch (error) {
+                console.error('切換失敗:', error);
+                showNotification('發生錯誤', 'error');
+                // 恢復開關狀態
+                loadWelcome();
+            }
+        }
+
+        // 保存歡迎系統設定
+        async function saveWelcomeSettings(type) {
+            try {
+                let channel, message;
+                
+                if (type === 'welcome') {
+                    channel = document.getElementById('welcome-channel').value;
+                    message = document.getElementById('welcome-message').value;
+                } else {
+                    channel = document.getElementById('leave-channel').value;
+                    message = document.getElementById('leave-message').value;
+                }
+                
+                // 驗證
+                if (!message.trim()) {
+                    showNotification('訊息內容不能為空', 'error');
+                    return;
+                }
+                
+                // 準備數據
+                const updateData = {};
+                if (type === 'welcome') {
+                    updateData['welcome_channel'] = channel || null;
+                    updateData['welcome_message'] = message;
+                } else {
+                    updateData['leave_channel'] = channel || null;
+                    updateData['leave_message'] = message;
+                }
+                
+                const response = await fetch('/api/welcome/' + GUILD_ID + '/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        const typeText = type === 'welcome' ? '歡迎系統' : '離開系統';
+                        showNotification(`${typeText}設定已保存`, 'success');
+                        loadWelcome();
+                    }
+                } else {
+                    showNotification('保存失敗', 'error');
+                }
+            } catch (error) {
+                console.error('保存失敗:', error);
+                showNotification('發生錯誤', 'error');
+            }
+        }
+
+        // 顯示通知
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 0.875rem 1.25rem;
+                background: ${type === 'success' ? '#2563eb' : '#dc2626'};
+                color: white;
+                font-size: 0.9rem;
+                font-weight: 500;
+                border-left: 3px solid ${type === 'success' ? '#1d4ed8' : '#b91c1c'};
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // 3秒後移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 載入生日數據
+        async function loadBirthdays() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/birthdays');
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('birthday-data');
+                    
+                    if (!data.exists || Object.keys(data.data).length === 0) {
+                        container.innerHTML = '<p style="color: #888;">暫無生日記錄</p>';
+                        return;
+                    }
+                    
+                    const birthdays = Object.keys(data.data).length;
+                    const currentMonth = new Date().getMonth() + 1;
+                    const thisMonth = Object.values(data.data).filter(bd => bd.month === currentMonth).length;
+                    
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">已登記生日</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${birthdays}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">本月壽星</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${thisMonth}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('birthday-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 載入遊戲統計
+        async function loadGames() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/game_stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('game-data');
+                    
+                    if (!data.exists || Object.keys(data.data).length === 0) {
+                        container.innerHTML = '<p style="color: #888;">暫無遊戲統計</p>';
+                        return;
+                    }
+                    
+                    // 計算統計
+                    const players = Object.keys(data.data).length;
+                    let totalGames = 0;
+                    let totalWins = 0;
+                    const gameTypes = {};
+                    
+                    Object.values(data.data).forEach(player => {
+                        totalGames += player.total_games || 0;
+                        totalWins += player.total_wins || 0;
+                        
+                        if (player.games) {
+                            Object.entries(player.games).forEach(([game, stats]) => {
+                                if (!gameTypes[game]) {
+                                    gameTypes[game] = { played: 0, won: 0 };
+                                }
+                                gameTypes[game].played += stats.played || 0;
+                                gameTypes[game].won += stats.won || 0;
+                            });
+                        }
+                    });
+                    
+                    const winRate = totalGames > 0 ? (totalWins / totalGames * 100) : 0;
+                    
+                    let gameTypesHtml = '';
+                    Object.entries(gameTypes).forEach(([name, stats]) => {
+                        const rate = stats.played > 0 ? (stats.won / stats.played * 100) : 0;
+                        gameTypesHtml += `
+                            <div style="background: #1a1a1a; padding: 0.75rem; border-left: 3px solid #2563eb; margin-bottom: 0.5rem;">
+                                <div style="color: #2563eb; font-weight: 600;">${name}</div>
+                                <div style="font-size: 0.85rem; color: #888;">
+                                    ${stats.played} 場遊戲 | 勝率 ${rate.toFixed(1)}%
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">遊戲玩家</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${players}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總遊戲場次</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalGames.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">平均勝率</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${winRate.toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">各遊戲統計</div>
+                            ${gameTypesHtml || '<p style="color: #888;">暫無遊戲數據</p>'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('game-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 載入伺服器統計
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/api/data/' + GUILD_ID + '/statistics');
+                if (response.ok) {
+                    const data = await response.json();
+                    const container = document.getElementById('statistics-data');
+                    
+                    if (!data.exists) {
+                        container.innerHTML = '<p style="color: #888;">暫無活躍度數據</p>';
+                        return;
+                    }
+                    
+                    const stats = data.data;
+                    const totalMessages = stats.total_messages || 0;
+                    
+                    // 計算今日訊息
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayMessages = stats.daily_messages?.[today] || 0;
+                    
+                    // 找出最熱門頻道
+                    let topChannel = '暫無數據';
+                    let topChannelCount = 0;
+                    if (stats.channel_stats) {
+                        Object.entries(stats.channel_stats).forEach(([id, info]) => {
+                            if (info.messages > topChannelCount) {
+                                topChannelCount = info.messages;
+                                topChannel = '#' + info.name;
+                            }
+                        });
+                    }
+                    
+                    // 找出最活躍時段
+                    let peakHour = '暫無數據';
+                    let peakCount = 0;
+                    if (stats.hourly_activity) {
+                        Object.entries(stats.hourly_activity).forEach(([hour, count]) => {
+                            if (count > peakCount) {
+                                peakCount = count;
+                                peakHour = hour + ':00';
+                            }
+                        });
+                    }
+                    
+                    // 活躍用戶數
+                    const activeUsers = Object.keys(stats.user_stats || {}).length;
+                    
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">總訊息數</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${totalMessages.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">今日訊息</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${todayMessages.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="color: #888; font-size: 0.9rem;">活躍用戶</div>
+                                <div style="font-size: 1.5rem; color: #2563eb; font-weight: 600;">${activeUsers}</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="background: #1a1a1a; padding: 1rem;">
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最熱門頻道</div>
+                                <div style="color: #2563eb; font-weight: 600;">${topChannel}</div>
+                                <div style="color: #888; font-size: 0.85rem;">${topChannelCount.toLocaleString()} 條訊息</div>
+                            </div>
+                            <div style="background: #1a1a1a; padding: 1rem;">
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">最活躍時段</div>
+                                <div style="color: #2563eb; font-weight: 600;">${peakHour}</div>
+                                <div style="color: #888; font-size: 0.85rem;">${peakCount.toLocaleString()} 條訊息</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('statistics-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 載入自定義命令
+        async function loadCustomCommands() {
+            try {
+                const response = await fetch('/api/custom-commands/' + GUILD_ID);
+                const data = await response.json();
+                const container = document.getElementById('custom-commands-data');
+                
+                if (!data.commands || Object.keys(data.commands).length === 0) {
+                    container.innerHTML = `
+                        <p style="color: #888;">尚未設定任何自定義命令</p>
+                        <button onclick="showAddCommandModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">添加命令</button>
+                    `;
+                } else {
+                    let html = `
+                        <button onclick="showAddCommandModal()" style="margin-bottom: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">添加命令</button>
+                        <div style="display: grid; gap: 0.75rem;">
+                    `;
+                    
+                    for (const [name, cmd] of Object.entries(data.commands)) {
+                        html += `
+                            <div style="background: #1a1a1a; padding: 1rem; border-left: 3px solid #2563eb;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div style="flex: 1;">
+                                        <div style="color: #2563eb; font-weight: 600; font-size: 1.1rem;">!${name}</div>
+                                        <div style="color: #ccc; margin-top: 0.5rem;">${cmd.response}</div>
+                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">使用次數：${cmd.uses || 0}</div>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button onclick="editCommand('${name}', '${cmd.response.replace(/'/g, "&apos;")}')" style="padding: 0.25rem 0.75rem; background: #333; color: #2563eb; border: 1px solid #2563eb; cursor: pointer;">編輯</button>
+                                        <button onclick="deleteCommand('${name}')" style="padding: 0.25rem 0.75rem; background: #333; color: #dc2626; border: 1px solid #dc2626; cursor: pointer;">刪除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                document.getElementById('custom-commands-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 顯示添加命令模態框
+        function showAddCommandModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
+                    <h3 style="margin-top: 0; color: #fff;">添加自定義命令</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">命令名稱（不包含!）</label>
+                        <input id="cmd-name" type="text" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">回覆內容</label>
+                        <textarea id="cmd-response" rows="4" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 0.5rem 1rem; background: #333; color: #ccc; border: 1px solid #444; cursor: pointer;">取消</button>
+                        <button onclick="addCommand()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">確定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 添加命令
+        async function addCommand() {
+            const name = document.getElementById('cmd-name').value.trim();
+            const response = document.getElementById('cmd-response').value.trim();
+            
+            if (!name || !response) {
+                showNotification('請填寫完整資訊', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/custom-commands/' + GUILD_ID, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, response })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('命令已添加！', 'success');
+                    loadCustomCommands();
+                    document.querySelector('div[style*="fixed"]').remove();
+                } else {
+                    showNotification(data.error || '添加失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('添加失敗', 'error');
+            }
+        }
+
+        // 編輯命令
+        function editCommand(name, currentResponse) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #2b2b2b; padding: 2rem; width: 90%; max-width: 500px; border: 1px solid #333;">
+                    <h3 style="margin-top: 0; color: #fff;">編輯命令：!${name}</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: #ccc; display: block; margin-bottom: 0.5rem;">回覆內容</label>
+                        <textarea id="edit-response" rows="4" style="width: 100%; padding: 0.5rem; background: #1a1a1a; border: 1px solid #333; color: #fff;">${currentResponse.replace(/&apos;/g, "'")}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 0.5rem 1rem; background: #333; color: #ccc; border: 1px solid #444; cursor: pointer;">取消</button>
+                        <button onclick="saveEditCommand('${name}')" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; cursor: pointer;">儲存</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 儲存編輯
+        async function saveEditCommand(name) {
+            const response = document.getElementById('edit-response').value.trim();
+            
+            if (!response) {
+                showNotification('請填寫回覆內容', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/custom-commands/' + GUILD_ID + '/' + encodeURIComponent(name), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ response })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('命令已更新！', 'success');
+                    loadCustomCommands();
+                    document.querySelector('div[style*="fixed"]').remove();
+                } else {
+                    showNotification(data.error || '更新失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('更新失敗', 'error');
+            }
+        }
+
+        // 刪除命令
+        async function deleteCommand(name) {
+            if (!confirm(`確定要刪除命令 !${name} 嗎？`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/custom-commands/' + GUILD_ID + '/' + encodeURIComponent(name), {
+                    method: 'DELETE'
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('命令已刪除！', 'success');
+                    loadCustomCommands();
+                } else {
+                    showNotification(data.error || '刪除失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('刪除失敗', 'error');
+            }
+        }
+
+        // 載入臨時語音配置
+        async function loadTempVoice() {
+            try {
+                const [configRes, channelsRes] = await Promise.all([
+                    fetch('/api/temp-voice/' + GUILD_ID),
+                    fetch('/api/channels/' + GUILD_ID)
+                ]);
+                
+                const configData = await configRes.json();
+                const channelsData = await channelsRes.json();
+                
+                const container = document.getElementById('temp-voice-data');
+                const config = configData.config;
+                
+                let html = `
+                    <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ${config.enabled ? '#2563eb' : '#666'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div style="color: #ccc; font-weight: 600;">系統狀態</div>
+                            <label style="position: relative; display: inline-block; width: 44px; height: 22px;">
+                                <input type="checkbox" ${config.enabled ? 'checked' : ''} onchange="toggleTempVoice(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ${config.enabled ? '#333' : '#2b2b2b'}; transition: 0.3s; border: 1px solid ${config.enabled ? '#2563eb' : '#444'};">
+                                    <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: ${config.enabled ? '#2563eb' : '#666'}; transition: 0.3s; transform: translateX(${config.enabled ? '22px' : '0'});"></span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: grid; gap: 1rem;">
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">觸發頻道</label>
+                                <select id="trigger-channel" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">選擇語音頻道...</option>
+                                    ${channelsData.voice_channels.map(ch => 
+                                        '<option value="' + ch.id + '" ' + (config.trigger_channel_id == ch.id ? 'selected' : '') + '>' + ch.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道分類（可選）</label>
+                                <select id="category" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">無分類</option>
+                                    ${channelsData.categories.map(cat => 
+                                        '<option value="' + cat.id + '" ' + (config.category_id == cat.id ? 'selected' : '') + '>' + cat.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">頻道名稱格式</label>
+                                <input id="channel-format" type="text" value="${config.channel_name_format}" onchange="updateTempVoiceConfig()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                <div style="color: #555; font-size: 0.85rem; margin-top: 0.25rem;">使用 {username} 代表用戶名</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding: 1rem; background: #2b2b2b; border-left: 3px solid #2563eb;">
+                            <div style="color: #888; font-size: 0.9rem;">使用說明：</div>
+                            <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                                1. 選擇一個語音頻道作為觸發器<br>
+                                2. 用戶加入該頻道時會自動創建臨時頻道<br>
+                                3. 所有成員離開後自動刪除<br>
+                                4. 用戶可使用 /臨時語音 命令管理自己的頻道
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                document.getElementById('temp-voice-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // 切換臨時語音系統
+        async function toggleTempVoice(enabled) {
+            try {
+                const res = await fetch('/api/temp-voice/' + GUILD_ID, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(enabled ? '臨時語音系統已啟用' : '臨時語音系統已停用', 'success');
+                    loadTempVoice();
+                } else {
+                    showNotification(data.error || '更新失敗', 'error');
+                    loadTempVoice();
+                }
+            } catch (error) {
+                showNotification('更新失敗', 'error');
+                loadTempVoice();
+            }
+        }
+
+        // 更新臨時語音配置
+        async function updateTempVoiceConfig() {
+            const triggerChannel = document.getElementById('trigger-channel').value || null;
+            const category = document.getElementById('category').value || null;
+            const channelFormat = document.getElementById('channel-format').value;
+            
+            try {
+                const res = await fetch('/api/temp-voice/' + GUILD_ID, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        trigger_channel_id: triggerChannel,
+                        category_id: category,
+                        channel_name_format: channelFormat
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('配置已更新！', 'success');
+                } else {
+                    showNotification(data.error || '更新失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('更新失敗', 'error');
+            }
+        }
+
+        // ===== 客服單系統管理 =====
+        async function loadTickets() {
+            try {
+                const [ticketsRes, channelsRes, rolesRes] = await Promise.all([
+                    fetch('/api/tickets/' + GUILD_ID),
+                    fetch('/api/channels/' + GUILD_ID),
+                    fetch('/api/stats/' + GUILD_ID)
+                ]);
+                
+                const ticketsData = await ticketsRes.json();
+                const channelsData = await channelsRes.json();
+                const statsData = await rolesRes.json();
+                
+                const container = document.getElementById('tickets-data');
+                const config = ticketsData.exists ? ticketsData.data : {
+                    enabled: false,
+                    category_id: null,
+                    support_role_id: null,
+                    log_channel_id: null,
+                    tickets: {},
+                    ticket_count: 0
+                };
+                
+                // 統計開啟和關閉的客服單數量
+                const openTickets = Object.values(config.tickets).filter(t => t.status === 'open');
+                const closedTickets = Object.values(config.tickets).filter(t => t.status === 'closed');
+                
+                let html = `
+                    <!-- 系統狀態 -->
+                    <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid ` + (config.enabled ? '#2563eb' : '#666') + `; margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div style="color: #ccc; font-weight: 600;">系統狀態</div>
+                            <label style="position: relative; display: inline-block; width: 44px; height: 22px;">
+                                <input type="checkbox" ` + (config.enabled ? 'checked' : '') + ` onchange="toggleTickets(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ` + (config.enabled ? '#333' : '#2b2b2b') + `; transition: 0.3s; border: 1px solid ` + (config.enabled ? '#2563eb' : '#444') + `;">
+                                    <span style="position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: ` + (config.enabled ? '#2563eb' : '#666') + `; transition: 0.3s; transform: translateX(` + (config.enabled ? '22px' : '0') + `);"></span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                            <div style="background: #2b2b2b; padding: 1rem; text-align: center;">
+                                <div style="color: #2563eb; font-size: 1.75rem; font-weight: 600;">${openTickets.length}</div>
+                                <div style="color: #888; font-size: 0.85rem;">開啟中</div>
+                            </div>
+                            <div style="background: #2b2b2b; padding: 1rem; text-align: center;">
+                                <div style="color: #10b981; font-size: 1.75rem; font-weight: 600;">${closedTickets.length}</div>
+                                <div style="color: #888; font-size: 0.85rem;">已關閉</div>
+                            </div>
+                            <div style="background: #2b2b2b; padding: 1rem; text-align: center;">
+                                <div style="color: #f59e0b; font-size: 1.75rem; font-weight: 600;">${config.ticket_count}</div>
+                                <div style="color: #888; font-size: 0.85rem;">總計</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系統設定 -->
+                    <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid #2563eb; margin-bottom: 1.5rem;">
+                        <div style="color: #fff; font-weight: 600; margin-bottom: 1rem;">系統設定</div>
+                        
+                        <div style="display: grid; gap: 1rem;">
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">客服單分類</label>
+                                <select id="ticket-category" onchange="updateTicketSettings()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">請選擇分類...</option>
+                                    ${(channelsData.categories || []).map(cat => 
+                                        '<option value="' + cat.id + '" ' + (config.category_id == cat.id ? 'selected' : '') + '>' + cat.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">支持團隊角色</label>
+                                <select id="ticket-support-role" onchange="updateTicketSettings()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">無</option>
+                                    ${Object.values(statsData.roles || {}).map(role => 
+                                        '<option value="' + role.id + '" ' + (config.support_role_id == role.id ? 'selected' : '') + '>' + role.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">日誌頻道</label>
+                                <select id="ticket-log-channel" onchange="updateTicketSettings()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">無</option>
+                                    ${(channelsData.text_channels || []).map(ch => 
+                                        '<option value="' + ch.id + '" ' + (config.log_channel_id == ch.id ? 'selected' : '') + '>' + ch.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label style="color: #666; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">面板頻道（選擇後可創建面板）</label>
+                                <select id="ticket-panel-channel" onchange="updateTicketSettings()" style="width: 100%; padding: 0.5rem; background: #2b2b2b; border: 1px solid #333; color: #ccc;">
+                                    <option value="">無</option>
+                                    ${(channelsData.text_channels || []).map(ch => 
+                                        '<option value="' + ch.id + '" ' + (config.panel_channel_id == ch.id ? 'selected' : '') + '>' + ch.name + '</option>'
+                                    ).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <button onclick="createTicketPanel()" ` + (!config.panel_channel_id ? 'disabled' : '') + ` style="width: 100%; padding: 0.75rem; background: ` + (config.panel_channel_id ? '#2563eb' : '#444') + `; border: none; color: ` + (config.panel_channel_id ? 'white' : '#666') + `; cursor: ` + (config.panel_channel_id ? 'pointer' : 'not-allowed') + `; font-weight: 600; transition: all 0.2s;">
+                                🎫 創建客服單面板
+                            </button>
+                            ` + (!config.panel_channel_id ? '<div style="color: #888; font-size: 0.85rem; text-align: center; margin-top: 0.5rem;">請先選擇面板頻道</div>' : '') + `
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding: 1rem; background: #2b2b2b; border-left: 3px solid #2563eb;">
+                            <div style="color: #888; font-size: 0.9rem;">使用說明：</div>
+                            <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                                1. 選擇客服單頻道分類<br>
+                                2. 選擇支持團隊角色（可選）<br>
+                                3. 設定日誌頻道記錄客服單操作<br>
+                                4. 選擇面板頻道後點擊創建面板按鈕
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 開啟中的客服單 -->
+                    <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid #10b981; margin-bottom: 1.5rem;">
+                        <div style="color: #fff; font-weight: 600; margin-bottom: 1rem;">開啟中的客服單 (${openTickets.length})</div>
+                        
+                        ${openTickets.length > 0 ? `
+                            <div style="display: grid; gap: 0.75rem;">
+                                ${openTickets.map((ticket, idx) => {
+                                    const ticketId = Object.keys(config.tickets).find(k => config.tickets[k] === ticket);
+                                    const userName = ticket.user_name || '未知';
+                                    const createdTime = new Date(ticket.created_at).toLocaleString('zh-TW');
+                                    return `
+                                        <div style="background: #2b2b2b; padding: 1rem; border-left: 3px solid #2563eb;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                                <div>
+                                                    <div style="color: #fff; font-weight: 600;">客服單 #` + ticketId + `</div>
+                                                    <div style="color: #888; font-size: 0.85rem; margin-top: 0.25rem;">
+                                                        創建者: ` + userName + `
+                                                    </div>
+                                                </div>
+                                                <div style="padding: 0.5rem 1rem; background: #374151; color: #9ca3af; font-size: 0.85rem; border-radius: 4px; font-weight: 600;">
+                                                    🔒 請在 Discord 內關閉
+                                                </div>
+                                            </div>
+                                            <div style="color: #666; font-size: 0.85rem;">
+                                                創建時間: ` + createdTime + `
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : '<div style="color: #666; text-align: center; padding: 2rem;">目前沒有開啟的客服單</div>'}
+                    </div>
+
+                    <!-- 最近關閉的客服單 -->
+                    <div style="background: #1a1a1a; padding: 1.25rem; border-left: 3px solid #6b7280;">
+                        <div style="color: #fff; font-weight: 600; margin-bottom: 1rem;">最近關閉的客服單</div>
+                        
+                        ${closedTickets.length > 0 ? `
+                            <div style="display: grid; gap: 0.75rem;">
+                                ${closedTickets.slice(-10).reverse().map((ticket, idx) => {
+                                    const ticketId = Object.keys(config.tickets).find(k => config.tickets[k] === ticket);
+                                    const userName = ticket.user_name || '未知';
+                                    const closerName = ticket.closer_name || ticket.closed_by || '未知';
+                                    const closedTime = new Date(ticket.closed_at).toLocaleString('zh-TW');
+                                    const closeReason = ticket.close_reason || '';
+                                    return `
+                                        <div style="background: #2b2b2b; padding: 1rem; border-left: 3px solid #6b7280;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                                <div>
+                                                    <div style="color: #fff; font-weight: 600;">客服單 #` + ticketId + `</div>
+                                                    <div style="color: #888; font-size: 0.85rem; margin-top: 0.25rem;">
+                                                        創建者: ` + userName + `
+                                                    </div>
+                                                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">
+                                                        關閉者: ` + closerName + `
+                                                    </div>
+                                                    ` + (closeReason ? `
+                                                        <div style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">
+                                                            原因: ` + closeReason + `
+                                                        </div>
+                                                    ` : '') + `
+                                                </div>
+                                            </div>
+                                            <div style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                                                關閉時間: ` + closedTime + `
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : '<div style="color: #666; text-align: center; padding: 2rem;">沒有關閉記錄</div>'}
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                document.getElementById('tickets-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                console.error('載入客服單失敗:', error);
+            }
+        }
+
+        // 切換客服單系統
+        async function toggleTickets(enabled) {
+            try {
+                const res = await fetch('/api/tickets/' + GUILD_ID + '/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(enabled ? '客服單系統已啟用' : '客服單系統已停用', 'success');
+                    loadTickets();
+                } else {
+                    showNotification(data.error || '更新失敗', 'error');
+                    loadTickets();
+                }
+            } catch (error) {
+                showNotification('更新失敗', 'error');
+                loadTickets();
+            }
+        }
+
+        // 更新客服單設定
+        async function updateTicketSettings() {
+            const category = document.getElementById('ticket-category').value || null;
+            const supportRole = document.getElementById('ticket-support-role').value || null;
+            const logChannel = document.getElementById('ticket-log-channel').value || null;
+            const panelChannel = document.getElementById('ticket-panel-channel').value || null;
+            
+            try {
+                const res = await fetch('/api/tickets/' + GUILD_ID + '/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        category_id: category,
+                        support_role_id: supportRole,
+                        log_channel_id: logChannel,
+                        panel_channel_id: panelChannel
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('設定已更新！', 'success');
+                    loadTickets(); // 重新載入以更新創建面板按鈕狀態
+                } else {
+                    showNotification(data.error || '更新失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('更新失敗', 'error');
+            }
+        }
+
+        // 創建客服單面板
+        async function createTicketPanel() {
+            const panelChannel = document.getElementById('ticket-panel-channel').value;
+            
+            if (!panelChannel) {
+                showNotification('請先選擇面板頻道', 'error');
+                return;
+            }
+            
+            if (!confirm('確定要在選定的頻道創建客服單面板嗎？')) return;
+            
+            try {
+                const res = await fetch(`/api/tickets/${GUILD_ID}/create-panel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ channel_id: panelChannel })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('✅ 客服單面板已創建！', 'success');
+                    loadTickets();
+                } else {
+                    showNotification(data.error || '創建失敗', 'error');
+                }
+            } catch (error) {
+                showNotification('創建失敗', 'error');
+                console.error('創建面板失敗:', error);
+            }
+        }
+
+        // 關閉客服單（已禁用）
+        async function closeTicket(ticketId) {
+            showNotification('網頁後台不支援關閉客服單，請在 Discord 內使用關閉按鈕', 'error');
+        }
+
+        // ===== 警告系統管理 =====
+        async function loadWarnings() {
+            try {
+                const response = await fetch('/api/warnings/' + GUILD_ID);
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('warnings-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                    return;
+                }
+                
+                const warnings = data.warnings;
+                const userCount = Object.keys(warnings).length;
+                
+                if (userCount === 0) {
+                    document.getElementById('warnings-data').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #888;">
+                            <p>✅ 目前沒有任何警告記錄</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div style="margin-bottom: 1rem; color: #888;">
+                        共有 ${userCount} 位用戶有警告記錄
+                    </div>
+                    <div style="max-height: 600px; overflow-y: auto;">
+                `;
+                
+                // 按警告次數排序
+                const sortedUsers = Object.entries(warnings).sort((a, b) => b[1].warn_count - a[1].warn_count);
+                
+                for (const [userId, userData] of sortedUsers) {
+                    const warnCount = userData.warn_count;
+                    const warnColor = warnCount >= 5 ? '#dc2626' : warnCount >= 3 ? '#f59e0b' : '#eab308';
+                    
+                    html += `
+                        <div style="background: #1a1a1a; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid ${warnColor};">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    ${userData.avatar ? `<img src="${userData.avatar}" style="width: 40px; height: 40px; border-radius: 50%;">` : ''}
+                                    <div>
+                                        <div style="font-weight: 600; color: #fff;">${userData.display_name || userData.username}</div>
+                                        <div style="color: #888; font-size: 0.9rem;">警告次數: <span style="color: ${warnColor}; font-weight: 600;">${warnCount}</span></div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="removeLatestWarning('${userId}')" class="btn btn-warning" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                        移除最新
+                                    </button>
+                                    <button onclick="clearWarnings('${userId}')" class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                        清除全部
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.5rem; border-top: 1px solid #333; padding-top: 0.5rem;">
+                    `;
+                    
+                    // 顯示最近5條警告
+                    const recentWarnings = userData.warnings.slice(-5).reverse();
+                    for (let i = 0; i < recentWarnings.length; i++) {
+                        const warn = recentWarnings[i];
+                        const actualIndex = userData.warnings.length - 1 - i;
+                        const timestamp = new Date(warn.timestamp).toLocaleString('zh-TW');
+                        html += `
+                            <div style="padding: 0.5rem; background: #2b2b2b; margin-bottom: 0.3rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <div style="color: #eab308;">理由: ${warn.reason}</div>
+                                    <div style="color: #888; font-size: 0.85rem;">操作者: ${warn.moderator_name} | ${timestamp}</div>
+                                </div>
+                                <button onclick="removeWarning('${userId}', ${actualIndex})" class="btn btn-sm" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc2626; color: white; border: none; cursor: pointer;">
+                                    移除當前
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    if (userData.warnings.length > 5) {
+                        html += `<div style="color: #888; text-align: center; font-size: 0.85rem;">還有 ${userData.warnings.length - 5} 條歷史記錄...</div>`;
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                document.getElementById('warnings-data').innerHTML = html;
+            } catch (error) {
+                console.error('載入警告數據失敗:', error);
+                document.getElementById('warnings-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        async function removeLatestWarning(userId) {
+            if (!confirm('確定要移除此用戶的最新警告嗎？')) return;
+            
+            try {
+                const res = await fetch(`/api/warnings/${GUILD_ID}/${userId}/latest`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(data.message || '已移除警告', 'success');
+                    loadWarnings();
+                } else {
+                    showNotification(data.message || data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('移除警告失敗:', error);
+                showNotification('操作失敗', 'error');
+            }
+        }
+
+        async function clearWarnings(userId) {
+            if (!confirm('確定要清除此用戶的所有警告嗎？此操作無法撤銷！')) return;
+            
+            try {
+                const res = await fetch(`/api/warnings/${GUILD_ID}/${userId}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(data.message || '已清除警告', 'success');
+                    loadWarnings();
+                } else {
+                    showNotification(data.message || data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('清除警告失敗:', error);
+                showNotification('操作失敗', 'error');
+            }
+        }
+
+        async function removeWarning(userId, index) {
+            if (!confirm('確定要移除此警告嗎？')) return;
+            
+            try {
+                const res = await fetch(`/api/warnings/${GUILD_ID}/${userId}/${index}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(data.message || '已移除警告', 'success');
+                    loadWarnings();
+                } else {
+                    showNotification(data.message || data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('移除警告失敗:', error);
+                showNotification('操作失敗', 'error');
+            }
+        }
+
+        // ===== 成就系統管理 =====
+        async function loadAchievements() {
+            try {
+                const response = await fetch('/api/achievements/' + GUILD_ID);
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('achievements-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+                    return;
+                }
+                
+                const achievements = data.achievements;
+                const userCount = Object.keys(achievements).length;
+                
+                if (userCount === 0) {
+                    document.getElementById('achievements-data').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #888;">
+                            <p>目前沒有用戶解鎖成就</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div style="margin-bottom: 1rem; color: #888;">
+                        共有 ${userCount} 位用戶解鎖了成就
+                    </div>
+                    <div style="max-height: 600px; overflow-y: auto;">
+                `;
+                
+                // 按成就數量排序
+                const sortedUsers = Object.entries(achievements).sort((a, b) => b[1].achievement_count - a[1].achievement_count);
+                
+                for (const [userId, userData] of sortedUsers) {
+                    const achievementCount = userData.achievement_count;
+                    
+                    html += `
+                        <div style="background: #1a1a1a; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid #2563eb;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                ${userData.avatar ? `<img src="${userData.avatar}" style="width: 40px; height: 40px; border-radius: 50%;">` : ''}
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #fff;">${userData.display_name || userData.username}</div>
+                                    <div style="color: #2563eb; font-size: 0.9rem;">🏆 已解鎖 ${achievementCount} 個成就</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                    `;
+                    
+                    // 顯示成就
+                    for (const ach of userData.achievements) {
+                        const rarityColors = {
+                            '普通': '#888',
+                            '稀有': '#3b82f6',
+                            '史詩': '#a855f7',
+                            '傳奇': '#eab308'
+                        };
+                        const rarityColor = rarityColors[ach.rarity] || '#888';
+                        
+                        html += `
+                            <div style="background: #2b2b2b; padding: 0.5rem; border-radius: 4px; border-left: 3px solid ${rarityColor};">
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${rarityColor};">${ach.name}</div>
+                                <div style="font-size: 0.75rem; color: #888;">${ach.category}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                document.getElementById('achievements-data').innerHTML = html;
+            } catch (error) {
+                console.error('載入成就數據失敗:', error);
+                document.getElementById('achievements-data').innerHTML = '<p style="color: #dc2626;">載入失敗</p>';
+            }
+        }
+
+        // ===== 自動回覆系統管理 =====
+        async function loadAutoReply() {
+            try {
+                const response = await fetch('/api/auto-reply/' + GUILD_ID);
+                
+                if (!response.ok) {
+                    console.error('API 請求失敗:', response.status, response.statusText);
+                    document.getElementById('auto-reply-data').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                            <p>❌ 載入失敗 (${response.status})</p>
+                            <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">請檢查網絡連接或重新整理頁面</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('API 返回錯誤:', data.error);
+                    document.getElementById('auto-reply-data').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                            <p>❌ 載入失敗</p>
+                            <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">${data.error}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 更新系統狀態開關
+                const systemToggle = document.getElementById('auto-reply-system-toggle');
+                const systemStatus = document.getElementById('auto-reply-system-status');
+                systemToggle.checked = data.enabled !== false;
+                systemStatus.textContent = data.enabled !== false ? '🟢 已啟用' : '🔴 已停用';
+                systemStatus.style.color = data.enabled !== false ? '#10b981' : '#888';
+                
+                const rules = data.rules || [];
+                
+                if (rules.length === 0) {
+                    document.getElementById('auto-reply-data').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #888;">
+                            <p>📝 目前沒有任何自動回覆規則</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem;">點擊上方「添加規則」按鈕開始創建</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div style="margin-bottom: 1rem; color: #888;">
+                        共有 ${rules.length} 條規則
+                    </div>
+                    <div style="display: grid; gap: 1rem;">
+                `;
+                
+                for (const rule of rules) {
+                    const statusColor = rule.enabled ? '#10b981' : '#888';
+                    const statusIcon = rule.enabled ? '🟢' : '🔴';
+                    const matchTypeLabels = {
+                        'exact': '完全匹配',
+                        'contains': '包含關鍵詞',
+                        'starts_with': '以...開頭',
+                        'ends_with': '以...結尾',
+                        'regex': '正則表達式'
+                    };
+                    const replyTypeLabels = {
+                        'message': '普通消息',
+                        'reply': '回覆消息',
+                        'dm': '私訊用戶',
+                        'react': '添加反應'
+                    };
+                    
+                    html += `
+                        <div style="background: #1a1a1a; padding: 1.25rem; border-left: 4px solid ${statusColor}; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #fff; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                        ${statusIcon} 規則 #${rule.id}
+                                        ${rule.trigger_once ? '<span style="background: #2563eb; color: white; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 3px; margin-left: 0.5rem;">僅觸發一次</span>' : ''}
+                                    </div>
+                                    <div style="color: #888; font-size: 0.85rem;">
+                                        創建於: ${new Date(rule.created_at).toLocaleString('zh-TW')}
+                                        ${rule.last_triggered ? ' | 最後觸發: ' + new Date(rule.last_triggered).toLocaleString('zh-TW') : ''}
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="editAutoReplyRule(${rule.id})" 
+                                            style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                                        編輯
+                                    </button>
+                                    <button onclick="toggleAutoReplyRule(${rule.id}, ${!rule.enabled})" 
+                                            style="padding: 0.5rem 1rem; background: ${rule.enabled ? '#f59e0b' : '#10b981'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                                        ${rule.enabled ? '停用' : '啟用'}
+                                    </button>
+                                    <button onclick="deleteAutoReplyRule(${rule.id})" 
+                                            style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                                        刪除
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                                <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px;">
+                                    <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">觸發詞</div>
+                                    <div style="color: #fff; font-family: monospace;">${rule.trigger}</div>
+                                </div>
+                                <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px;">
+                                    <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">觸發次數</div>
+                                    <div style="color: #2563eb; font-weight: 600; font-size: 1.2rem;">${rule.triggered_count || 0} 次</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #2b2b2b; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
+                                <div style="color: #888; font-size: 0.85rem; margin-bottom: 0.25rem;">回覆內容</div>
+                                <div style="color: #fff;">${rule.reply_type === 'react' ? '反應: ' + rule.reaction : rule.reply}</div>
+                            </div>
+                            
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem;">
+                                <span style="background: #2b2b2b; color: #888; padding: 0.25rem 0.75rem; border-radius: 3px;">
+                                    匹配: ${matchTypeLabels[rule.match_type] || rule.match_type}
+                                </span>
+                                <span style="background: #2b2b2b; color: #888; padding: 0.25rem 0.75rem; border-radius: 3px;">
+                                    回覆: ${replyTypeLabels[rule.reply_type] || rule.reply_type}
+                                </span>
+                                ${rule.case_sensitive ? '<span style="background: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 3px;">區分大小寫</span>' : ''}
+                                ${rule.mention_user ? '<span style="background: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 3px;">提及用戶</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                document.getElementById('auto-reply-data').innerHTML = html;
+            } catch (error) {
+                console.error('載入自動回覆數據失敗:', error);
+                document.getElementById('auto-reply-data').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                        <p>❌ 載入失敗</p>
+                        <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">${error.message || '未知錯誤'}</p>
+                        <button onclick="loadAutoReply()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔄 重新載入
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 開關自動回覆系統
+        async function toggleAutoReplySystem(enabled) {
+            try {
+                const res = await fetch(`/api/auto-reply/${GUILD_ID}/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                if (!res.ok) {
+                    console.error('API 請求失敗:', res.status, res.statusText);
+                    showNotification(`操作失敗 (${res.status})`, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(enabled ? '✅ 已啟用自動回覆系統' : '⏸️ 已停用自動回覆系統', 'success');
+                    loadAutoReply();
+                } else {
+                    console.error('API 返回錯誤:', data.error);
+                    showNotification(data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('切換系統失敗:', error);
+                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
+            }
+        }
+
+        // 開關特定規則
+        async function toggleAutoReplyRule(ruleId, enabled) {
+            try {
+                const res = await fetch(`/api/auto-reply/${GUILD_ID}/${ruleId}/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                if (!res.ok) {
+                    console.error('API 請求失敗:', res.status, res.statusText);
+                    showNotification(`操作失敗 (${res.status})`, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(enabled ? '✅ 已啟用規則' : '⏸️ 已停用規則', 'success');
+                    loadAutoReply();
+                } else {
+                    console.error('API 返回錯誤:', data.error);
+                    showNotification(data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('切換規則失敗:', error);
+                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
+            }
+        }
+
+        // 打開添加規則模態框
+        function openAddAutoReplyModal() {
+            document.getElementById('modalTitle').textContent = '添加自動回覆規則';
+            document.getElementById('editRuleId').value = '';
+            document.getElementById('triggerInput').value = '';
+            document.getElementById('replyInput').value = '';
+            document.getElementById('matchTypeSelect').value = 'contains';
+            document.getElementById('replyTypeSelect').value = 'message';
+            document.getElementById('reactionInput').value = '👍';
+            document.getElementById('caseSensitiveCheck').checked = false;
+            document.getElementById('mentionUserCheck').checked = false;
+            document.getElementById('triggerOnceCheck').checked = false;
+            document.getElementById('enabledCheck').checked = true;
+            document.getElementById('reactionInputDiv').style.display = 'none';
+            document.getElementById('autoReplyModal').style.display = 'flex';
+        }
+
+        // 編輯規則
+        async function editAutoReplyRule(ruleId) {
+            try {
+                const response = await fetch('/api/auto-reply/' + GUILD_ID);
+                
+                if (!response.ok) {
+                    console.error('API 請求失敗:', response.status, response.statusText);
+                    showNotification(`載入規則失敗 (${response.status})`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('API 返回錯誤:', data.error);
+                    showNotification(data.error || '載入規則失敗', 'error');
+                    return;
+                }
+                
+                const rule = data.rules ? data.rules.find(r => r.id === ruleId) : null;
+                
+                if (!rule) {
+                    showNotification('找不到該規則', 'error');
+                    return;
+                }
+                
+                document.getElementById('modalTitle').textContent = '編輯自動回覆規則 #' + ruleId;
+                document.getElementById('editRuleId').value = ruleId;
+                document.getElementById('triggerInput').value = rule.trigger || '';
+                document.getElementById('replyInput').value = rule.reply || '';
+                document.getElementById('matchTypeSelect').value = rule.match_type || 'contains';
+                document.getElementById('replyTypeSelect').value = rule.reply_type || 'message';
+                document.getElementById('reactionInput').value = rule.reaction || '👍';
+                document.getElementById('caseSensitiveCheck').checked = rule.case_sensitive || false;
+                document.getElementById('mentionUserCheck').checked = rule.mention_user || false;
+                document.getElementById('triggerOnceCheck').checked = rule.trigger_once || false;
+                document.getElementById('enabledCheck').checked = rule.enabled !== false;
+                document.getElementById('reactionInputDiv').style.display = rule.reply_type === 'react' ? 'block' : 'none';
+                document.getElementById('autoReplyModal').style.display = 'flex';
+            } catch (error) {
+                console.error('載入規則失敗:', error);
+                showNotification(`載入規則失敗: ${error.message || '未知錯誤'}`, 'error');
+            }
+        }
+
+        // 關閉模態框
+        function closeAutoReplyModal() {
+            document.getElementById('autoReplyModal').style.display = 'none';
+        }
+
+        // 切換反應輸入框顯示
+        function toggleReactionInput(replyType) {
+            document.getElementById('reactionInputDiv').style.display = replyType === 'react' ? 'block' : 'none';
+        }
+
+        // 保存規則
+        async function saveAutoReply() {
+            const ruleId = document.getElementById('editRuleId').value;
+            const trigger = document.getElementById('triggerInput').value.trim();
+            const reply = document.getElementById('replyInput').value.trim();
+            const matchType = document.getElementById('matchTypeSelect').value;
+            const replyType = document.getElementById('replyTypeSelect').value;
+            const reaction = document.getElementById('reactionInput').value.trim();
+            const caseSensitive = document.getElementById('caseSensitiveCheck').checked;
+            const mentionUser = document.getElementById('mentionUserCheck').checked;
+            const triggerOnce = document.getElementById('triggerOnceCheck').checked;
+            const enabled = document.getElementById('enabledCheck').checked;
+            
+            if (!trigger) {
+                showNotification('請輸入觸發詞', 'error');
+                return;
+            }
+            
+            if (replyType !== 'react' && !reply) {
+                showNotification('請輸入回覆內容', 'error');
+                return;
+            }
+            
+            const ruleData = {
+                trigger,
+                reply: replyType === 'react' ? '' : reply,
+                match_type: matchType,
+                reply_type: replyType,
+                reaction: replyType === 'react' ? reaction : '👍',
+                case_sensitive: caseSensitive,
+                mention_user: mentionUser,
+                trigger_once: triggerOnce,
+                enabled,
+                channel_ids: [],
+                role_ids: []
+            };
+            
+            try {
+                let url, method;
+                if (ruleId) {  // 編輯
+                    url = `/api/auto-reply/${GUILD_ID}/${ruleId}`;
+                    method = 'PUT';
+                } else {  // 新增
+                    url = `/api/auto-reply/${GUILD_ID}`;
+                    method = 'POST';
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ruleData)
+                });
+                
+                if (!res.ok) {
+                    console.error('API 請求失敗:', res.status, res.statusText);
+                    showNotification(`操作失敗 (${res.status})`, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(ruleId ? '✅ 規則已更新' : '✅ 規則已添加', 'success');
+                    closeAutoReplyModal();
+                    loadAutoReply();
+                } else {
+                    console.error('API 返回錯誤:', data.error);
+                    showNotification(data.error || '操作失敗', 'error');
+                }
+            } catch (error) {
+                console.error('保存失敗:', error);
+                showNotification(`操作失敗: ${error.message || '未知錯誤'}`, 'error');
+            }
+        }
+
+        // 刪除規則
+        async function deleteAutoReplyRule(ruleId) {
+            if (!confirm('確定要刪除此規則嗎？此操作無法撤銷！')) return;
+            
+            try {
+                const res = await fetch(`/api/auto-reply/${GUILD_ID}/${ruleId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!res.ok) {
+                    console.error('API 請求失敗:', res.status, res.statusText);
+                    showNotification(`刪除失敗 (${res.status})`, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('✅ 規則已刪除', 'success');
+                    loadAutoReply();
+                } else {
+                    console.error('API 返回錯誤:', data.error);
+                    showNotification(data.error || '刪除失敗', 'error');
+                }
+            } catch (error) {
+                console.error('刪除失敗:', error);
+                showNotification(`刪除失敗: ${error.message || '未知錯誤'}`, 'error');
+            }
+        }
+
+        // 頁面載入時執行
+        loadStats();
+        loadLevels();
+        loadDaily();
+        loadWelcome();
+        loadBirthdays();
+        loadGames();
+        loadStatistics();
+        loadCustomCommands();
+        loadTempVoice();
+        loadWarnings();
+        loadAchievements();
+        loadTickets();
+        loadAutoReply();
+        loadSecurity();
+        
+        // 每30秒更新一次數據
+        setInterval(() => {
+            loadStats();
+            loadLevels();
+            loadDaily();
+            loadWelcome();
+            loadBirthdays();
+            loadGames();
+            loadStatistics();
+            loadCustomCommands();
+            loadTempVoice();
+            loadWarnings();
+            loadAchievements();
+            loadTickets();
+            loadAutoReply();
+            loadSecurity();
+        }, 30000);
+
+        // ===== 安全系統管理 =====
+        
+        async function loadSecurity() {
+            try {
+                const res = await fetch(`/api/security/${GUILD_ID}`);
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                
+                // 更新開關狀態
+                document.getElementById('securityToggle').checked = data.enabled || false;
+                
+                // 更新配置
+                document.getElementById('actionType').value = data.action_type || 'timeout';
+                document.getElementById('timeoutDuration').value = data.timeout_duration || 60;
+                document.getElementById('matchType').value = data.match_type || 'contains';
+                document.getElementById('caseSensitive').checked = data.case_sensitive || false;
+                
+                // 顯示違禁詞列表
+                const bannedWordsList = document.getElementById('bannedWordsList');
+                if (!data.banned_words || data.banned_words.length === 0) {
+                    bannedWordsList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #888;">
+                            <p>📝 目前沒有設定違禁詞</p>
+                        </div>
+                    `;
+                } else {
+                    bannedWordsList.innerHTML = data.banned_words.map((word, index) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #2a2a2a; border-radius: 4px; margin-bottom: 0.5rem;">
+                            <span style="color: #fff; font-family: monospace;">${escapeHtml(word)}</span>
+                            <button onclick="deleteBannedWord('${escapeHtml(word)}')" 
+                                    style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🗑️ 刪除
+                            </button>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('載入安全系統數據失敗:', error);
+                const bannedWordsList = document.getElementById('bannedWordsList');
+                if (bannedWordsList) {
+                    bannedWordsList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                            <p>❌ 載入失敗: ${error.message}</p>
+                            <button onclick="loadSecurity()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                重試
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // 開關安全系統
+        async function toggleSecuritySystem() {
+            const enabled = document.getElementById('securityToggle').checked;
+            
+            try {
+                const res = await fetch(`/api/security/${GUILD_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(enabled ? '✅ 已啟用安全系統' : '⏸️ 已停用安全系統', 'success');
+                } else {
+                    throw new Error(data.error || '操作失敗');
+                }
+            } catch (error) {
+                console.error('切換安全系統失敗:', error);
+                showNotification('操作失敗: ' + error.message, 'error');
+                // 恢復開關狀態
+                document.getElementById('securityToggle').checked = !enabled;
+            }
+        }
+        
+        // 更新安全配置
+        async function updateSecurityConfig() {
+            try {
+                const config = {
+                    action_type: document.getElementById('actionType').value,
+                    timeout_duration: parseInt(document.getElementById('timeoutDuration').value),
+                    match_type: document.getElementById('matchType').value,
+                    case_sensitive: document.getElementById('caseSensitive').checked
+                };
+                
+                const res = await fetch(`/api/security/${GUILD_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('✅ 配置已更新', 'success');
+                } else {
+                    throw new Error(data.error || '操作失敗');
+                }
+            } catch (error) {
+                console.error('更新配置失敗:', error);
+                showNotification('操作失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 顯示添加違禁詞對話框
+        function showAddBannedWordDialog() {
+            document.getElementById('bannedWordInput').value = '';
+            document.getElementById('bannedWordModal').style.display = 'flex';
+            document.getElementById('bannedWordInput').focus();
+        }
+        
+        // 關閉違禁詞模態框
+        function closeBannedWordModal() {
+            document.getElementById('bannedWordModal').style.display = 'none';
+        }
+        
+        // 提交違禁詞
+        function submitBannedWord() {
+            const word = document.getElementById('bannedWordInput').value.trim();
+            if (word) {
+                addBannedWord(word);
+                closeBannedWordModal();
+            } else {
+                showNotification('⚠️ 請輸入違禁詞', 'error');
+            }
+        }
+        
+        // 添加違禁詞
+        async function addBannedWord(word) {
+            try {
+                const res = await fetch(`/api/security/${GUILD_ID}/banned-words`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ word })
+                });
+                
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || `HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('✅ 違禁詞已添加', 'success');
+                    loadSecurity();
+                } else {
+                    throw new Error(data.error || '操作失敗');
+                }
+            } catch (error) {
+                console.error('添加違禁詞失敗:', error);
+                showNotification('操作失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 刪除違禁詞
+        async function deleteBannedWord(word) {
+            if (!confirm(`確定要刪除違禁詞「${word}」嗎？`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/security/${GUILD_ID}/banned-words`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ word })
+                });
+                
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || `HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('✅ 違禁詞已刪除', 'success');
+                    loadSecurity();
+                } else {
+                    throw new Error(data.error || '操作失敗');
+                }
+            } catch (error) {
+                console.error('刪除違禁詞失敗:', error);
+                showNotification('操作失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // ===== 定時消息管理 =====
+        
+        // 載入定時消息列表
+        async function loadScheduledMessages() {
+            try {
+                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}`);
+                if (!response.ok) throw new Error('載入失敗');
+                
+                const data = await response.json();
+                const container = document.getElementById('scheduled-messages-list');
+                
+                if (!data.messages || data.messages.length === 0) {
+                    container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">暫無定時消息</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.messages.map(msg => `
+                    <div style="background: #2a2a2a; padding: 1rem; border-radius: 4px; border-left: 3px solid #2563eb;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #fff; margin-bottom: 0.5rem;">
+                                    ⏰ ${escapeHtml(msg.time)}
+                                </div>
+                                <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                    📢 頻道 ID: ${escapeHtml(msg.channel_id)}
+                                </div>
+                                <div style="color: #ccc; font-size: 0.9rem; background: #1a1a1a; padding: 0.75rem; border-radius: 4px; word-break: break-word;">
+                                    ${escapeHtml(msg.message)}
+                                </div>
+                            </div>
+                            <button onclick="deleteScheduledMessage('${msg.id}')" 
+                                    style="padding: 0.5rem 0.75rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 1rem;">
+                                刪除
+                            </button>
+                        </div>
+                        <div style="color: #666; font-size: 0.85rem;">
+                            由 ${escapeHtml(msg.created_by)} 建立於 ${new Date(msg.created_at).toLocaleString('zh-TW')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('載入定時消息失敗:', error);
+                document.getElementById('scheduled-messages-list').innerHTML = 
+                    '<p style="color: #dc2626; text-align: center; padding: 2rem;">載入失敗</p>';
+            }
+        }
+        
+        // 顯示添加定時消息對話框
+        async function showAddScheduledMessageDialog() {
+            // 載入頻道列表
+            try {
+                const response = await fetch(`/api/channels/${GUILD_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const select = document.getElementById('scheduleChannel');
+                    select.innerHTML = data.channels
+                        .filter(ch => ch.type === 'text')
+                        .map(ch => `<option value="${ch.id}">${escapeHtml(ch.name)}</option>`)
+                        .join('');
+                }
+            } catch (error) {
+                console.error('載入頻道列表失敗:', error);
+            }
+            
+            // 清空表單
+            document.getElementById('scheduleTime').value = '';
+            document.getElementById('scheduleMessage').value = '';
+            
+            // 顯示對話框
+            document.getElementById('scheduledMessageModal').style.display = 'flex';
+        }
+        
+        // 關閉定時消息對話框
+        function closeScheduledMessageDialog() {
+            document.getElementById('scheduledMessageModal').style.display = 'none';
+        }
+        
+        // 保存定時消息
+        async function saveScheduledMessage() {
+            const time = document.getElementById('scheduleTime').value.trim();
+            const message = document.getElementById('scheduleMessage').value.trim();
+            const channelId = document.getElementById('scheduleChannel').value;
+            
+            if (!time || !message) {
+                showNotification('⚠️ 請填寫所有必填欄位', 'error');
+                return;
+            }
+            
+            // 驗證時間格式
+            const timeRegex = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}$/;
+            if (!timeRegex.test(time)) {
+                showNotification('⚠️ 時間格式錯誤，請使用 YYYY/MM/DD HH:MM 格式', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        time: time,
+                        message: message,
+                        channel_id: channelId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '保存失敗');
+                }
+                
+                showNotification('✅ 定時消息已設定', 'success');
+                closeScheduledMessageDialog();
+                loadScheduledMessages();
+            } catch (error) {
+                console.error('保存定時消息失敗:', error);
+                showNotification('❌ ' + error.message, 'error');
+            }
+        }
+        
+        // 刪除定時消息
+        async function deleteScheduledMessage(messageId) {
+            if (!confirm('確定要刪除這個定時消息嗎？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/scheduled-messages/${GUILD_ID}/${messageId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('刪除失敗');
+                
+                showNotification('✅ 定時消息已刪除', 'success');
+                loadScheduledMessages();
+            } catch (error) {
+                console.error('刪除定時消息失敗:', error);
+                showNotification('❌ 刪除失敗', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+
