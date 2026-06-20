@@ -1,8 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import json
-import os
 from datetime import datetime
 
 class Achievements(commands.Cog):
@@ -10,7 +8,7 @@ class Achievements(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.data_folder = './data'
+        self.storage = bot.storage
         
         # 定義成就
         self.achievement_definitions = {
@@ -165,25 +163,13 @@ class Achievements(commands.Cog):
             },
         }
     
-    def get_achievement_file(self, guild_id: int) -> str:
-        """獲取成就檔案路徑"""
-        folder = os.path.join(self.data_folder, str(guild_id))
-        os.makedirs(folder, exist_ok=True)
-        return os.path.join(folder, 'achievements.json')
-    
     def load_achievements(self, guild_id: int) -> dict:
         """載入成就數據"""
-        file_path = self.get_achievement_file(guild_id)
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {}
+        return self.storage.load_guild_data(guild_id, 'achievements', default={})
     
     def save_achievements(self, guild_id: int, achievements: dict):
         """儲存成就數據"""
-        file_path = self.get_achievement_file(guild_id)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(achievements, f, ensure_ascii=False, indent=2)
+        self.storage.save_guild_data(guild_id, 'achievements', achievements)
     
     def unlock_achievement(self, guild_id: int, user_id: int, achievement_id: str) -> bool:
         """解鎖成就"""
@@ -210,34 +196,23 @@ class Achievements(commands.Cog):
         """檢查並解鎖成就"""
         # 獲取用戶統計
         stats = {}
+        user_key = str(user_id)
         
         # 等級數據
-        levels_file = os.path.join(self.data_folder, str(guild_id), 'levels.json')
-        if os.path.exists(levels_file):
-            with open(levels_file, 'r', encoding='utf-8') as f:
-                levels_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in levels_data:
-                    stats['level'] = levels_data[user_key].get('level', 0)
-                    stats['messages'] = levels_data[user_key].get('messages', 0)
+        levels_data = self.storage.load_guild_data(guild_id, 'levels', default={})
+        if user_key in levels_data:
+            stats['level'] = levels_data[user_key].get('level', 0)
+            stats['messages'] = levels_data[user_key].get('messages', 0)
         
         # 遊戲數據
-        game_file = os.path.join(self.data_folder, str(guild_id), 'game_stats.json')
-        if os.path.exists(game_file):
-            with open(game_file, 'r', encoding='utf-8') as f:
-                game_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in game_data:
-                    stats['game_wins'] = game_data[user_key].get('wins', 0)
+        game_data = self.storage.load_guild_data(guild_id, 'game_stats', default={})
+        if user_key in game_data:
+            stats['game_wins'] = game_data[user_key].get('wins', 0)
         
         # 簽到數據
-        daily_file = os.path.join(self.data_folder, str(guild_id), 'daily.json')
-        if os.path.exists(daily_file):
-            with open(daily_file, 'r', encoding='utf-8') as f:
-                daily_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in daily_data:
-                    stats['daily_streak'] = daily_data[user_key].get('streak', 0)
+        daily_data = self.storage.load_guild_data(guild_id, 'daily', default={})
+        if user_key in daily_data:
+            stats['daily_streak'] = daily_data[user_key].get('streak', 0)
         
         # 檢查成就
         unlocked = []
@@ -362,34 +337,23 @@ class Achievements(commands.Cog):
             'game_wins': 0,
             'daily_streak': 0
         }
+        user_key = str(user_id)
         
         # 等級數據
-        levels_file = os.path.join(self.data_folder, str(guild_id), 'levels.json')
-        if os.path.exists(levels_file):
-            with open(levels_file, 'r', encoding='utf-8') as f:
-                levels_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in levels_data:
-                    stats['level'] = levels_data[user_key].get('level', 0)
-                    stats['messages'] = levels_data[user_key].get('messages', 0)
+        levels_data = self.storage.load_guild_data(guild_id, 'levels', default={})
+        if user_key in levels_data:
+            stats['level'] = levels_data[user_key].get('level', 0)
+            stats['messages'] = levels_data[user_key].get('messages', 0)
         
         # 遊戲數據
-        game_file = os.path.join(self.data_folder, str(guild_id), 'game_stats.json')
-        if os.path.exists(game_file):
-            with open(game_file, 'r', encoding='utf-8') as f:
-                game_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in game_data:
-                    stats['game_wins'] = game_data[user_key].get('wins', 0)
+        game_data = self.storage.load_guild_data(guild_id, 'game_stats', default={})
+        if user_key in game_data:
+            stats['game_wins'] = game_data[user_key].get('wins', 0)
         
         # 簽到數據
-        daily_file = os.path.join(self.data_folder, str(guild_id), 'daily.json')
-        if os.path.exists(daily_file):
-            with open(daily_file, 'r', encoding='utf-8') as f:
-                daily_data = json.load(f)
-                user_key = str(user_id)
-                if user_key in daily_data:
-                    stats['daily_streak'] = daily_data[user_key].get('streak', 0)
+        daily_data = self.storage.load_guild_data(guild_id, 'daily', default={})
+        if user_key in daily_data:
+            stats['daily_streak'] = daily_data[user_key].get('streak', 0)
         
         embed = discord.Embed(
             title="📊 成就進度",

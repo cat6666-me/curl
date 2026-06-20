@@ -299,24 +299,20 @@ class Polls(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.data_folder = './data'
-        self.polls_file = os.path.join(self.data_folder, 'polls.json')
+        self.storage = bot.storage
         self.load_polls()
     
     def load_polls(self):
         """載入投票數據"""
-        os.makedirs(self.data_folder, exist_ok=True)
-        
-        if os.path.exists(self.polls_file):
-            with open(self.polls_file, 'r', encoding='utf-8') as f:
-                self.polls = json.load(f)
-        else:
-            self.polls = {}
+        self.polls = self.storage.load_global_data(
+            'polls',
+            default={},
+            legacy_filename='polls.json'
+        )
     
     def save_polls(self):
         """保存所有投票數據"""
-        with open(self.polls_file, 'w', encoding='utf-8') as f:
-            json.dump(self.polls, f, ensure_ascii=False, indent=2)
+        self.storage.save_global_data('polls', self.polls)
     
     def get_poll(self, poll_id: str) -> dict:
         """獲取投票數據"""

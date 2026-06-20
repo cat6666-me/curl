@@ -1,9 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import json
-import os
-import asyncio
 from typing import Optional
 
 class TempVoice(commands.Cog):
@@ -11,36 +8,24 @@ class TempVoice(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.data_folder = './data'
+        self.storage = bot.storage
         # 追蹤臨時頻道 {channel_id: owner_id}
         self.temp_channels = {}
     
-    def get_config_file(self, guild_id: int) -> str:
-        """獲取伺服器的臨時語音配置檔案路徑"""
-        folder = os.path.join(self.data_folder, str(guild_id))
-        os.makedirs(folder, exist_ok=True)
-        return os.path.join(folder, 'temp_voice.json')
-    
     def load_config(self, guild_id: int) -> dict:
         """載入臨時語音配置"""
-        file_path = self.get_config_file(guild_id)
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {
+        return self.storage.load_guild_data(guild_id, 'temp_voice', default={
             'enabled': False,
             'trigger_channel_id': None,
             'category_id': None,
             'channel_name_format': '{username} 的頻道',
             'user_limit': 0,
             'default_bitrate': 64000
-        }
+        })
     
     def save_config(self, guild_id: int, config: dict):
         """儲存臨時語音配置"""
-        file_path = self.get_config_file(guild_id)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, ensure_ascii=False, indent=2)
+        self.storage.save_guild_data(guild_id, 'temp_voice', config)
     
     voice_group = app_commands.Group(name="臨時語音", description="臨時語音頻道管理")
     
@@ -264,24 +249,13 @@ class TempVoice(commands.Cog):
         
         # 用戶離開頻道 - 檢查是否需要刪除臨時頻道
         if before.channel and before.channel.id in self.temp_channels:
-            # 如果頻道沒有人了，等待1分鐘後刪除
+            # 如果頻道沒有人了，刪除它
             if len(before.channel.members) == 0:
-                channel_id = before.channel.id
-                # 等待60秒
-                await asyncio.sleep(60)
-                
-                # 再次檢查頻道是否存在且仍然為空
-                channel = member.guild.get_channel(channel_id)
-                if channel and len(channel.members) == 0 and channel_id in self.temp_channels:
-                    try:
-                        await channel.delete()
-                        del self.temp_channels[channel_id]
-                        print(f'🗑️ 已刪除空的臨時頻道: {channel.name}')
-                    except Exception as e:
-                        print(f'❌ 刪除臨時頻道失敗: {e}')
-                        # 如果刪除失敗，從追蹤列表中移除
-                        if channel_id in self.temp_channels:
-                            del self.temp_channels[channel_id]
+                try:
+                    await before.channel.delete()
+                    del self.temp_channels[before.channel.id]
+                except:
+                    pass
     
     @commands.Cog.listener()
     async def on_ready(self):

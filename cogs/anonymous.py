@@ -1,8 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import json
-import os
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -86,29 +84,19 @@ class Anonymous(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+        self.storage = bot.storage
         self.anonymous_posts = {}  # {guild_id: {message_id: {author_id, author_name, timestamp}}}
-    
-    def get_data_path(self, guild_id):
-        """獲取數據文件路徑"""
-        return f'./data/{guild_id}/anonymous.json'
     
     def load_data(self, guild_id):
         """載入匿名貼文數據"""
-        path = self.get_data_path(guild_id)
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {
+        return self.storage.load_guild_data(guild_id, 'anonymous', default={
             'enabled_channels': [],  # 允許匿名發言的頻道
             'posts': {}  # 貼文記錄
-        }
+        })
     
     def save_data(self, guild_id, data):
         """保存匿名貼文數據"""
-        path = self.get_data_path(guild_id)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        self.storage.save_guild_data(guild_id, 'anonymous', data)
     
     # 創建匿名指令組
     anonymous_group = app_commands.Group(name="匿名", description="匿名發言系統")
